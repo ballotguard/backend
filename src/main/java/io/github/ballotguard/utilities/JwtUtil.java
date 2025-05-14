@@ -8,8 +8,6 @@ import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -20,15 +18,16 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
-    private final String JWT_SECRET_KEY, REFRESH_TOKEN_SECRET_KEY;
+    @Value("${app.jwtKey}")
+    private String jwtSecretKey;
 
-    public JwtUtil(@Value("${app.jwtKey}") String jwtSecretKey, @Value("${app.refreshTokenKey}") String refreshTokenSecretKey) {
-        this.JWT_SECRET_KEY = jwtSecretKey;
-        this.REFRESH_TOKEN_SECRET_KEY = refreshTokenSecretKey;
-    }
+    @Value("${app.refreshTokenKey}")
+    private String refreshTokenSecretKey;
+
+
 
     private SecretKey getSigningKey(Boolean isRefresh) {
-        return isRefresh ? Keys.hmacShaKeyFor(REFRESH_TOKEN_SECRET_KEY.getBytes()) : Keys.hmacShaKeyFor(JWT_SECRET_KEY.getBytes());
+        return isRefresh ? Keys.hmacShaKeyFor(refreshTokenSecretKey.getBytes()) : Keys.hmacShaKeyFor(jwtSecretKey.getBytes());
     }
 
     public String extractEmail(String token, Boolean isRefresh) {

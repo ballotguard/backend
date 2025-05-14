@@ -42,7 +42,7 @@ public class EmailVerificationController {
                         "Your email verification code",
                         "Use this code to verify your email in Ballotguard");
             }else{
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
             }
 
         }catch(Exception e){

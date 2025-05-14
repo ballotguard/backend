@@ -66,9 +66,11 @@ public class AccountController {
 
     @GetMapping("login")
     public ResponseEntity<Map> login (@RequestBody Map<String, Object> requestBody) {
-        String email = (String) requestBody.get("email");
-        String password = (String) requestBody.get("password");
+
         try{
+            String email = (String) requestBody.get("email");
+            String password = (String) requestBody.get("password");
+
             if(!email.isEmpty() && !password.isEmpty() ) {
                 return checkAuthAndGenerateJwt(email, password);
 
