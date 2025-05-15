@@ -41,7 +41,7 @@ public class ForgotPasswordController {
                         "Your forgot password verification code",
                         "Use this code to continue with resetting your password");
             }else{
-                return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                return  ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
             }
         }catch (Exception e){
             log.error(e.getMessage());
@@ -62,7 +62,7 @@ public class ForgotPasswordController {
                 return  jwtUtil.generateJwtAndRefreshToken(response.getBody().getEmail());
 
             }else{
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
             }
         }catch(Exception e){
             log.error(e.getMessage());

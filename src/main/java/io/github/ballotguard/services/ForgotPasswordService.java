@@ -36,8 +36,12 @@ public class ForgotPasswordService {
                 authenticatedUserEntity.get().setPassword(passwordEncoder.encode(newPassword));
                 userRepository.save(authenticatedUserEntity.get());
                 return ResponseEntity.ok().build();
+            }else if(!authenticatedUserEntity.isPresent()){
+                return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
+            }else if(!passwordEncoder.matches(oldPassword, authenticatedUserEntity.get().getPassword())){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }else{
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
         }catch (Exception e){
             log.error(e.getMessage());

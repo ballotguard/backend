@@ -59,7 +59,7 @@ public class EmailVerificationController {
             if(userEntity.isPresent()){
                 return userVerificationService.verifyVerificationCode(userEntity.get(), verificationCode, false);
             }else{
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
             }
         }catch(Exception e){
             log.error(e.getMessage());

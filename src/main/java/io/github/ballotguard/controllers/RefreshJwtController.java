@@ -31,7 +31,7 @@ public class RefreshJwtController {
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }else{
                 Map<String, Object> response = new HashMap<>();
-                response.put("error", "Refresh Token is not valid");
+                response.put("message", "Refresh Token is not valid");
 
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }

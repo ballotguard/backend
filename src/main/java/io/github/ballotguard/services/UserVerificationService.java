@@ -40,22 +40,26 @@ public class UserVerificationService {
 
     public ResponseEntity sendVerificationCodeEmail(UserEntity userEntity, String emailSubject, String emailBody) throws Exception {
         try{
-            Optional<UserVerificationEntity> userVerificationEntity = userVerificationRepository.findById(userEntity.getUserVerificationEntityId());
-            if(userVerificationEntity.isPresent()){
-                String verificationCode = UUID.randomUUID().toString().replace("-", "").substring(0, 6);
-                userVerificationEntity.get().setVerificationCode(verificationCode);
-                userVerificationEntity.get().setVerificationCodeExpirationTime(Instant.now().plus(Duration.ofMinutes(5)));
-                userVerificationRepository.save(userVerificationEntity.get());
-                emailService.sendEmail(userEntity.getEmail(), emailSubject, verificationCode, emailBody);
-                log.debug("Email sent");
-                return ResponseEntity.ok().build();
 
-            }else{
+            UserVerificationEntity userVerificationEntity ;
+            Optional<UserVerificationEntity> optionalUserVerificationEntity = userVerificationRepository.findById(userEntity.getUserVerificationEntityId());
+            if(!optionalUserVerificationEntity.isPresent()){
                 UserVerificationEntity newUserVerificationEntity = createUserVerificationEntity(userEntity.getId());
                 userEntity.setUserVerificationEntityId(newUserVerificationEntity.getId());
                 userRepository.save(userEntity);
-                return new ResponseEntity(HttpStatus.PRECONDITION_FAILED);
+                userVerificationEntity = newUserVerificationEntity;
+            }else{
+                userVerificationEntity = optionalUserVerificationEntity.get();
             }
+
+            String verificationCode = UUID.randomUUID().toString().replace("-", "").substring(0, 6);
+            userVerificationEntity.setVerificationCode(verificationCode);
+            userVerificationEntity.setVerificationCodeExpirationTime(Instant.now().plus(Duration.ofMinutes(5)));
+            userVerificationRepository.save(userVerificationEntity);
+            emailService.sendEmail(userEntity.getEmail(), emailSubject, verificationCode, emailBody);
+            log.debug("Email sent");
+            return ResponseEntity.ok().build();
+
         }catch (Exception e){
             log.error(e.getMessage());
             throw new Exception(e.getMessage());
@@ -80,6 +84,11 @@ public class UserVerificationService {
                 return ResponseEntity.ok().build();
 
 
+            }else if(userVerificationEntity.isPresent() && !userVerificationEntity.get().getVerificationCode().equals(verificationCode)){
+                Map<String, Object> response= new HashMap<>();
+                response.put("message", "This code is not valid");
+                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(response);
+
             }else if(userVerificationEntity.isPresent() && userVerificationEntity.get().getVerificationCode().equals(verificationCode)
                     && userVerificationEntity.get().getVerificationCodeExpirationTime().isBefore(Instant.now())){
 
@@ -88,7 +97,7 @@ public class UserVerificationService {
                 return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(response);
 
             }else{
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
         } catch (Exception e) {
             log.error(e.getMessage());
