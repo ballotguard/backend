@@ -33,7 +33,7 @@ public class UserController {
                 response.put("email", authenticatedUser.get().getEmail());
                 response.put("firstName", authenticatedUser.get().getFirstName());
                 response.put("lastName", authenticatedUser.get().getLastName());
-                response.put("verifies", authenticatedUser.get().isVerified());
+                response.put("verified", authenticatedUser.get().isVerified());
                 response.put("enabled", authenticatedUser.get().isEnabled());
                 return ResponseEntity.status(HttpStatus.OK).body(response);
             }else{
