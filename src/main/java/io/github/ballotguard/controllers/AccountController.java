@@ -5,6 +5,7 @@ import io.github.ballotguard.entities.UserEntity;
 import io.github.ballotguard.services.UserService;
 import io.github.ballotguard.utilities.CreateResponseUtil;
 import io.github.ballotguard.utilities.JwtUtil;
+import io.github.ballotguard.utilities.MatchTextPatternUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,9 @@ public class AccountController {
     @Autowired
     private CreateResponseUtil createResponseUtil;
 
+    @Autowired
+    private MatchTextPatternUtil matchTextPatternUtil;
+
 
     @PostMapping("signup")
     public ResponseEntity<Map> signup (@RequestBody UserEntity userEntity)  {
@@ -46,6 +50,11 @@ public class AccountController {
 
                 return ResponseEntity.badRequest()
                         .body(createResponseUtil.createResponseBody(false, "Email, password or first name is empty"));
+
+            }else if(!matchTextPatternUtil.isValidEmail(userEntity.getEmail())){
+
+                return ResponseEntity.badRequest()
+                        .body(createResponseUtil.createResponseBody(false, "This email address is not valid"));
 
             }else if(userEntity.getPassword().length() < 8 || userEntity.getPassword().length() > 50){
 
@@ -97,6 +106,11 @@ public class AccountController {
             if(email.isEmpty() || password.isEmpty() ){
                 return ResponseEntity.badRequest()
                         .body(createResponseUtil.createResponseBody(false, "Email or password is empty"));
+
+            }else if(!matchTextPatternUtil.isValidEmail(email)){
+
+                return ResponseEntity.badRequest()
+                        .body(createResponseUtil.createResponseBody(false, "This email address is not valid"));
 
             }else{
                 try{
