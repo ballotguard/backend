@@ -2,6 +2,7 @@ package io.github.ballotguard.controllers;
 
 import io.github.ballotguard.entities.UserEntity;
 import io.github.ballotguard.services.UserService;
+import io.github.ballotguard.utilities.CreateResponseUtil;
 import io.github.ballotguard.utilities.GetAuthenticatedUserUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ import java.util.Optional;
 public class UserController {
 
     @Autowired
-    private UserService userService;
+    private CreateResponseUtil createResponseUtil;
 
     @Autowired
     private GetAuthenticatedUserUtil getAuthenticatedUserUtil;
@@ -35,13 +36,14 @@ public class UserController {
                 response.put("lastName", authenticatedUser.get().getLastName());
                 response.put("verified", authenticatedUser.get().isVerified());
                 response.put("enabled", authenticatedUser.get().isEnabled());
-                return ResponseEntity.status(HttpStatus.OK).body(response);
+                return ResponseEntity.status(HttpStatus.OK).body(createResponseUtil.createResponseBody(true, "User found", response));
             }else{
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createResponseUtil.createResponseBody(false, "User does not exist"));
             }
         }catch (Exception e) {
             log.error(e.getMessage());
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError()
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred"));
         }
     }
 

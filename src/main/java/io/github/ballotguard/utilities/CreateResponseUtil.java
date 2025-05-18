@@ -31,6 +31,14 @@ public class CreateResponseUtil {
         return response;
     }
 
+    public Map createResponseBody(boolean success, String message, String dataName, String data){
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", success);
+        response.put("message", message);
+        response.put("data", data);
+        return response;
+    }
+
     public Map createMap(String dataName, String data){
         Map<String, Object> response = new HashMap<>();
         response.put(dataName, data);
