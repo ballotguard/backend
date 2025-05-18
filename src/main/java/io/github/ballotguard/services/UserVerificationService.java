@@ -4,6 +4,7 @@ import io.github.ballotguard.entities.UserEntity;
 import io.github.ballotguard.entities.UserVerificationEntity;
 import io.github.ballotguard.repositories.UserRepository;
 import io.github.ballotguard.repositories.UserVerificationRepository;
+import io.github.ballotguard.utilities.CreateResponseUtil;
 import io.github.ballotguard.utilities.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ public class UserVerificationService {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    CreateResponseUtil createResponseUtil;
+
     public UserVerificationEntity createUserVerificationEntity(String userId){
         UserVerificationEntity userVerificationEntity =
                 new UserVerificationEntity(UUID.randomUUID().toString().replace("-", ""), userId, "", Instant.now());
@@ -38,7 +42,7 @@ public class UserVerificationService {
         return userVerificationRepository.save(userVerificationEntity);
     }
 
-    public ResponseEntity sendVerificationCodeEmail(UserEntity userEntity, String emailSubject, String emailBody) throws Exception {
+    public ResponseEntity sendVerificationCodeEmail(UserEntity userEntity, String emailSubject, String emailBody, String responseMessage) throws Exception {
         try{
 
             UserVerificationEntity userVerificationEntity ;
@@ -48,6 +52,7 @@ public class UserVerificationService {
                 userEntity.setUserVerificationEntityId(newUserVerificationEntity.getId());
                 userRepository.save(userEntity);
                 userVerificationEntity = newUserVerificationEntity;
+
             }else{
                 userVerificationEntity = optionalUserVerificationEntity.get();
             }
@@ -58,7 +63,7 @@ public class UserVerificationService {
             userVerificationRepository.save(userVerificationEntity);
             emailService.sendEmail(userEntity.getEmail(), emailSubject, verificationCode, emailBody);
             log.debug("Email sent");
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok().body(createResponseUtil.createResponseBody(true, responseMessage));
 
         }catch (Exception e){
             log.error(e.getMessage());
@@ -66,38 +71,41 @@ public class UserVerificationService {
         }
     }
 
-    public ResponseEntity verifyVerificationCode(UserEntity userEntity, String verificationCode, Boolean isForgotPasswordVerification) throws Exception {
+    public ResponseEntity verifyVerificationCode(UserEntity userEntity, String verificationCode, Boolean isForgotPasswordVerification, String responseMessage) throws Exception {
         try{
             Optional<UserVerificationEntity> userVerificationEntity = userVerificationRepository.findById(userEntity.getUserVerificationEntityId());
 
-            if(userVerificationEntity.isPresent() && !userVerificationEntity.get().getVerificationCode().equals("")
-                    && userVerificationEntity.get().getVerificationCode().equals(verificationCode)
-                    && userVerificationEntity.get().getVerificationCodeExpirationTime().isAfter(Instant.now())){
+            if(userVerificationEntity.isPresent()){
+                if(userVerificationEntity.get().getVerificationCode().equals("")){
+                    return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
+                            .body(createResponseUtil.createResponseBody(false, "This user has not requested for verification code"));
 
-                userVerificationEntity.get().setVerificationCode("");
-                userVerificationRepository.save(userVerificationEntity.get());
+                }else if(!userVerificationEntity.get().getVerificationCode().equals(verificationCode)){
 
-                if (!isForgotPasswordVerification) {
-                    userEntity.setVerified(true);
-                    userRepository.save(userEntity);
+                    return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                            .body(createResponseUtil.createResponseBody(false, "This code is not valid"));
+
+                }else if(userVerificationEntity.get().getVerificationCode().equals(verificationCode)
+                        && userVerificationEntity.get().getVerificationCodeExpirationTime().isBefore(Instant.now())){
+
+                    return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                            .body(createResponseUtil.createResponseBody(false, "This code has expired"));
+
+                }else{
+
+                    userVerificationEntity.get().setVerificationCode("");
+                    userVerificationRepository.save(userVerificationEntity.get());
+
+                    if (!isForgotPasswordVerification) {
+                        userEntity.setVerified(true);
+                        userRepository.save(userEntity);
+                        return ResponseEntity.ok().body(createResponseUtil.createResponseBody(true, responseMessage));
+                    }
+                    return  ResponseEntity.ok().build();
+
                 }
-                return ResponseEntity.ok().build();
-
-
-            }else if(userVerificationEntity.isPresent() && !userVerificationEntity.get().getVerificationCode().equals(verificationCode)){
-                Map<String, Object> response= new HashMap<>();
-                response.put("message", "This code is not valid");
-                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(response);
-
-            }else if(userVerificationEntity.isPresent() && userVerificationEntity.get().getVerificationCode().equals(verificationCode)
-                    && userVerificationEntity.get().getVerificationCodeExpirationTime().isBefore(Instant.now())){
-
-                Map<String, Object> response= new HashMap<>();
-                response.put("message", "This code has expired, request a new code");
-                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(response);
-
             }else{
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                throw  new Exception();
             }
         } catch (Exception e) {
             log.error(e.getMessage());

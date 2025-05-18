@@ -3,6 +3,7 @@ package io.github.ballotguard.controllers;
 
 import io.github.ballotguard.entities.UserEntity;
 import io.github.ballotguard.services.UserVerificationService;
+import io.github.ballotguard.utilities.CreateResponseUtil;
 import io.github.ballotguard.utilities.GetAuthenticatedUserUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,44 +27,57 @@ public class EmailVerificationController {
     @Autowired
     private UserVerificationService userVerificationService;
 
+    @Autowired
+    private CreateResponseUtil createResponseUtil;
+
 
     @PostMapping("/verify/send-email-verification-code")
-    public ResponseEntity sendVerificationCode() {
+    public ResponseEntity sendEmailVerificationCode() {
         try{
             Optional<UserEntity> userEntity = getAuthenticatedUserUtil.getAuthenticatedUser();
 
             if(userEntity.isPresent()){
                 if(userEntity.get().isVerified()){
-                    Map<String, Object> responseBody= new HashMap<>();
-                    responseBody.put("message", "This user is already verified");
-                    return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(responseBody);
+
+                    return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                            .body(createResponseUtil.createResponseBody(false, "This user is already verified"));
                 }
                 return userVerificationService.sendVerificationCodeEmail(userEntity.get(),
                         "Your email verification code",
-                        "Use this code to verify your email in Ballotguard");
+                        "Use this code to verify your email in Ballotguard",
+                        "Email verification code sent");
             }else{
-                return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
+                return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
+                        .body(createResponseUtil.createResponseBody(false, "Authentication failed. User does not exist"));
             }
 
         }catch(Exception e){
+
             log.error(e.getMessage());
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError()
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred"));
         }
     }
 
     @PostMapping("/verify/verify-email-verification-code")
-    public ResponseEntity verifyVerificationCode(@RequestBody Map<String, Object> requestBody) {
-        String verificationCode = (String) requestBody.get("verificationCode");
+    public ResponseEntity verifyEmailVerificationCode(@RequestBody Map<String, Object> requestBody) {
+
         try{
+            String verificationCode = (String) requestBody.get("verificationCode");
             Optional<UserEntity> userEntity = getAuthenticatedUserUtil.getAuthenticatedUser();
+
             if(userEntity.isPresent()){
-                return userVerificationService.verifyVerificationCode(userEntity.get(), verificationCode, false);
+                return userVerificationService.verifyVerificationCode(userEntity.get(), verificationCode, false, "Email verification code verified. User is now verified");
             }else{
-                return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
+                return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
+                        .body(createResponseUtil.createResponseBody(false, "Authentication failed. User does not exist"));
             }
+
         }catch(Exception e){
             log.error(e.getMessage());
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError()
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred"));
+
         }
     }
 }

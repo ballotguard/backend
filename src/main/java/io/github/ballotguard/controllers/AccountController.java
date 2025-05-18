@@ -103,7 +103,7 @@ public class AccountController {
             String email = (String) requestBody.get("email");
             String password = (String) requestBody.get("password");
 
-            if(email.isEmpty() || password.isEmpty() ){
+            if(email.isEmpty() || password.isEmpty()){
                 return ResponseEntity.badRequest()
                         .body(createResponseUtil.createResponseBody(false, "Email or password is empty"));
 
@@ -132,7 +132,8 @@ public class AccountController {
         } catch (Exception e) {
 
             log.error(e.getMessage());
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError()
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred"));
 
         }
     }

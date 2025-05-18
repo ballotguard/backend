@@ -4,6 +4,7 @@ import io.github.ballotguard.entities.UserEntity;
 import io.github.ballotguard.services.ForgotPasswordService;
 import io.github.ballotguard.services.UserService;
 import io.github.ballotguard.services.UserVerificationService;
+import io.github.ballotguard.utilities.CreateResponseUtil;
 import io.github.ballotguard.utilities.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ public class ForgotPasswordController {
     private JwtUtil jwtUtil;
 
     @Autowired
+    private CreateResponseUtil createResponseUtil;
+
+    @Autowired
     UserVerificationService userVerificationService;
 
 
@@ -39,13 +43,16 @@ public class ForgotPasswordController {
             if(response.getStatusCode() == HttpStatus.OK){
                 return userVerificationService.sendVerificationCodeEmail(response.getBody(),
                         "Your forgot password verification code",
-                        "Use this code to continue with resetting your password");
+                        "Use this code to continue with resetting your password",
+                        "Forgot password verification code sent");
             }else{
-                return  ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
+                return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
+                        .body(createResponseUtil.createResponseBody(false, "Authentication failed. User does not exist"));
             }
         }catch (Exception e){
             log.error(e.getMessage());
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError()
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred"));
         }
 
     }
@@ -57,27 +64,40 @@ public class ForgotPasswordController {
         String verificationCode = (String) requestBody.get("verificationCode");
         try{
             ResponseEntity<UserEntity> response = userService.findUser(email, "email");
-            if(response.getStatusCode() == HttpStatus.OK && userVerificationService.verifyVerificationCode(response.getBody(), verificationCode, true).getStatusCode().equals(HttpStatus.OK)){
 
-                return  jwtUtil.generateJwtAndRefreshTokenResponse(response.getBody().getEmail());
+            if(response.getStatusCode() == HttpStatus.OK ){
+                ResponseEntity verificationResponse = userVerificationService.verifyVerificationCode(response.getBody(), verificationCode, true, "");
+
+                if(verificationResponse.getStatusCode() == HttpStatus.OK){
+                    return  jwtUtil.generateJwtAndRefreshTokenResponse(response.getBody().getEmail(), "Forgot password code verified");
+                }else{
+                    return verificationResponse;
+                }
+
 
             }else{
-                return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
+                return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
+                        .body(createResponseUtil.createResponseBody(false, "Authentication failed. User does not exist"));
             }
         }catch(Exception e){
             log.error(e.getMessage());
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError()
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred"));
         }
     }
 
     @PutMapping("/user/reset-password")
     public ResponseEntity resetPassword(@RequestBody Map<String, Object> requestBody) {
-        String oldPassword = (String) requestBody.get("oldPassword");
-        String newPassword = (String) requestBody.get("newPassword");
         try{
+            String oldPassword = (String) requestBody.get("oldPassword");
+            String newPassword = (String) requestBody.get("newPassword");
+
             return forgotPasswordService.resetPassword(oldPassword, newPassword);
+
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            log.error(e.getMessage());
+            return ResponseEntity.internalServerError()
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred"));
         }
     }
 
