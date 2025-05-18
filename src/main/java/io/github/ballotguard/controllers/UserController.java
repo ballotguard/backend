@@ -2,7 +2,7 @@ package io.github.ballotguard.controllers;
 
 import io.github.ballotguard.entities.UserEntity;
 import io.github.ballotguard.services.UserService;
-import io.github.ballotguard.utilities.GetAuthenticatedUser;
+import io.github.ballotguard.utilities.GetAuthenticatedUserUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,12 +22,12 @@ public class UserController {
     private UserService userService;
 
     @Autowired
-    private GetAuthenticatedUser getAuthenticatedUser;
+    private GetAuthenticatedUserUtil getAuthenticatedUserUtil;
 
     @GetMapping("/user/logged-in-user-info")
     public ResponseEntity<Map<String, Object>> getLoggedInUserInfo() {
         try{
-            Optional<UserEntity> authenticatedUser =  getAuthenticatedUser.GetAuthenticatedUser();
+            Optional<UserEntity> authenticatedUser =  getAuthenticatedUserUtil.getAuthenticatedUser();
             if(authenticatedUser.isPresent()) {
                 Map<String, Object> response= new HashMap<>();
                 response.put("email", authenticatedUser.get().getEmail());

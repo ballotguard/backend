@@ -3,7 +3,7 @@ package io.github.ballotguard.controllers;
 
 import io.github.ballotguard.entities.UserEntity;
 import io.github.ballotguard.services.UserVerificationService;
-import io.github.ballotguard.utilities.GetAuthenticatedUser;
+import io.github.ballotguard.utilities.GetAuthenticatedUserUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,7 @@ import java.util.Optional;
 public class EmailVerificationController {
 
     @Autowired
-    private GetAuthenticatedUser getAuthenticatedUser;
+    private GetAuthenticatedUserUtil getAuthenticatedUserUtil;
 
     @Autowired
     private UserVerificationService userVerificationService;
@@ -30,7 +30,7 @@ public class EmailVerificationController {
     @PostMapping("/verify/send-email-verification-code")
     public ResponseEntity sendVerificationCode() {
         try{
-            Optional<UserEntity> userEntity = getAuthenticatedUser.GetAuthenticatedUser();
+            Optional<UserEntity> userEntity = getAuthenticatedUserUtil.getAuthenticatedUser();
 
             if(userEntity.isPresent()){
                 if(userEntity.get().isVerified()){
@@ -55,7 +55,7 @@ public class EmailVerificationController {
     public ResponseEntity verifyVerificationCode(@RequestBody Map<String, Object> requestBody) {
         String verificationCode = (String) requestBody.get("verificationCode");
         try{
-            Optional<UserEntity> userEntity = getAuthenticatedUser.GetAuthenticatedUser();
+            Optional<UserEntity> userEntity = getAuthenticatedUserUtil.getAuthenticatedUser();
             if(userEntity.isPresent()){
                 return userVerificationService.verifyVerificationCode(userEntity.get(), verificationCode, false);
             }else{

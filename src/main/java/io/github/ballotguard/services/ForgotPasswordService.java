@@ -2,7 +2,7 @@ package io.github.ballotguard.services;
 
 import io.github.ballotguard.entities.UserEntity;
 import io.github.ballotguard.repositories.UserRepository;
-import io.github.ballotguard.utilities.GetAuthenticatedUser;
+import io.github.ballotguard.utilities.GetAuthenticatedUserUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,7 @@ public class ForgotPasswordService {
     private UserRepository userRepository;
 
     @Autowired
-    private GetAuthenticatedUser getAuthenticatedUser;
+    private GetAuthenticatedUserUtil getAuthenticatedUserUtil;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -31,7 +31,7 @@ public class ForgotPasswordService {
     @Transactional
     public ResponseEntity resetPassword(String oldPassword, String newPassword) throws Exception {
         try{
-            Optional<UserEntity> authenticatedUserEntity = getAuthenticatedUser.GetAuthenticatedUser();
+            Optional<UserEntity> authenticatedUserEntity = getAuthenticatedUserUtil.getAuthenticatedUser();
             if (authenticatedUserEntity.isPresent() && passwordEncoder.matches(oldPassword, authenticatedUserEntity.get().getPassword())) {
                 authenticatedUserEntity.get().setPassword(passwordEncoder.encode(newPassword));
                 userRepository.save(authenticatedUserEntity.get());

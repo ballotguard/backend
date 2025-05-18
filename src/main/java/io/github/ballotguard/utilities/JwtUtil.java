@@ -1,6 +1,7 @@
 package io.github.ballotguard.utilities;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,9 @@ import java.util.Map;
 @Slf4j
 @Component
 public class JwtUtil {
+
+    @Autowired
+    CreateResponseUtil createResponseUtil;
 
     @Value("${app.jwtKey}")
     private String jwtSecretKey;
@@ -91,19 +95,21 @@ public class JwtUtil {
         }
     }
 
-    public ResponseEntity<Map> generateJwtAndRefreshToken(String email) throws Exception {
+    public ResponseEntity<Map> generateJwtAndRefreshTokenResponse(String email, String message) throws Exception {
         try{
             String jwt = generateToken(email, false);
             String refreshToken = generateToken(email, true);
 
             if(jwt != null && refreshToken != null) {
-                Map<String, Object> params = new HashMap<>();
-                params.put("jwt", jwt);
-                params.put("refreshToken", refreshToken);
 
-                return ResponseEntity.status(HttpStatus.OK).body(params);
+                Map<String, Object> tokens = new HashMap<>();
+                tokens.put("jwt", jwt);
+                tokens.put("refreshToken", refreshToken);
+
+                return ResponseEntity.status(HttpStatus.OK).body(createResponseUtil.createResponseBody(true, message, tokens ));
             }else{
-                return ResponseEntity.internalServerError().build();
+                return ResponseEntity.internalServerError()
+                        .body(createResponseUtil.createResponseBody(false, "An error occurred"));
             }
         } catch (Exception e) {
             log.error(e.getMessage());

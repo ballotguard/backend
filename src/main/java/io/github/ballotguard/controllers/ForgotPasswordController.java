@@ -59,7 +59,7 @@ public class ForgotPasswordController {
             ResponseEntity<UserEntity> response = userService.findUser(email, "email");
             if(response.getStatusCode() == HttpStatus.OK && userVerificationService.verifyVerificationCode(response.getBody(), verificationCode, true).getStatusCode().equals(HttpStatus.OK)){
 
-                return  jwtUtil.generateJwtAndRefreshToken(response.getBody().getEmail());
+                return  jwtUtil.generateJwtAndRefreshTokenResponse(response.getBody().getEmail());
 
             }else{
                 return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();

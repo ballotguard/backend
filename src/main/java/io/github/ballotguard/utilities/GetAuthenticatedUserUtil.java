@@ -11,12 +11,12 @@ import java.util.Optional;
 
 @Slf4j
 @Component
-public class GetAuthenticatedUser {
+public class GetAuthenticatedUserUtil {
 
     @Autowired
     private UserRepository userRepository;
 
-    public Optional<UserEntity> GetAuthenticatedUser() {
+    public Optional<UserEntity> getAuthenticatedUser() {
        try{
            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
            String email = authentication.getName();
