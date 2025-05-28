@@ -8,7 +8,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.Instant;
+import java.sql.Timestamp;
+
 import java.util.ArrayList;
 
 @Document(collection = "user")
@@ -27,14 +28,18 @@ public class UserEntity {
     @NonNull
     private String password;
 
+    @NonNull
     private String firstName;
     private String lastName;
 
-    private boolean verified;
-    private boolean enabled;
-    private Instant userCreationTime;
+    private boolean isVerified;
+    private boolean isAccountEnabled;
+    private Timestamp userCreationTime;
 
     private String userVerificationEntityId;
+    private String userSettingsEntityId;
+
+    private ArrayList<String> userElectionsId;
 
     private ArrayList<String> roles;
 

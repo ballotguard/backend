@@ -19,7 +19,7 @@ public class PublicController {
     @GetMapping("health-check")
     public ResponseEntity healthCheck() {
        try{
-           return ResponseEntity.ok().body("API is up and running");
+           return ResponseEntity.ok().body(createResponseUtil.createResponseBody(true, "API is up and running"));
        }catch(Exception e){
            log.error(e.getMessage());
            return ResponseEntity.internalServerError()

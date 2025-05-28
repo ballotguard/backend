@@ -15,13 +15,21 @@ public class CreateResponseUtil {
         return response;
     }
 
-    public Map createResponseBody(boolean success, String message, String error){
+    public Map createResponseBody(boolean success, String message, String email){
         Map<String, Object> response = new HashMap<>();
         response.put("success", success);
         response.put("message", message);
-        response.put("error", error);
+        response.put("email", email);
         return response;
     }
+
+//    public Map createResponseBody(boolean success, String message, String error){
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("success", success);
+//        response.put("message", message);
+//        response.put("error", error);
+//        return response;
+//    }
 
     public Map createResponseBody(boolean success, String message, Map data){
         Map<String, Object> response = new HashMap<>();
@@ -31,11 +39,20 @@ public class CreateResponseUtil {
         return response;
     }
 
+    public Map createResponseBody(boolean success, String message, String email, Map data){
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", success);
+        response.put("message", message);
+        response.put("email", email);
+        response.put("data", data);
+        return response;
+    }
+
     public Map createResponseBody(boolean success, String message, String dataName, String data){
         Map<String, Object> response = new HashMap<>();
         response.put("success", success);
         response.put("message", message);
-        response.put("data", data);
+        response.put(dataName, data);
         return response;
     }
 
