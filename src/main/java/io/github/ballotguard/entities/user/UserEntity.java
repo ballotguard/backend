@@ -1,4 +1,4 @@
-package io.github.ballotguard.entities;
+package io.github.ballotguard.entities.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

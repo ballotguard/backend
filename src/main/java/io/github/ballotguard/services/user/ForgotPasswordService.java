@@ -1,6 +1,6 @@
-package io.github.ballotguard.services;
+package io.github.ballotguard.services.user;
 
-import io.github.ballotguard.entities.UserEntity;
+import io.github.ballotguard.entities.user.UserEntity;
 import io.github.ballotguard.repositories.UserRepository;
 import io.github.ballotguard.utilities.CreateResponseUtil;
 import io.github.ballotguard.utilities.GetAuthenticatedUserUtil;

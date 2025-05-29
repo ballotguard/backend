@@ -1,11 +1,11 @@
-package io.github.ballotguard.services;
+package io.github.ballotguard.services.user;
 
-import io.github.ballotguard.entities.UserEntity;
-import io.github.ballotguard.entities.UserVerificationEntity;
+import io.github.ballotguard.entities.user.UserEntity;
+import io.github.ballotguard.entities.user.UserVerificationEntity;
 import io.github.ballotguard.repositories.UserRepository;
 import io.github.ballotguard.repositories.UserVerificationRepository;
+import io.github.ballotguard.services.EmailService;
 import io.github.ballotguard.utilities.CreateResponseUtil;
-import io.github.ballotguard.utilities.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 

@@ -1,7 +1,6 @@
 package io.github.ballotguard.controllers;
 
-import io.github.ballotguard.entities.UserEntity;
-import io.github.ballotguard.services.UserService;
+import io.github.ballotguard.entities.user.UserEntity;
 import io.github.ballotguard.utilities.CreateResponseUtil;
 import io.github.ballotguard.utilities.GetAuthenticatedUserUtil;
 import lombok.extern.slf4j.Slf4j;
