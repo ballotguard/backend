@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,13 +60,13 @@ public class UserService {
     public UserEntity createUser(UserEntity userEntity, Boolean isVerified) throws Exception{
 
         try{
-            userEntity.setEnabled(true);
-            userEntity.setId(UUID.randomUUID().toString().replace("-", ""));
+            userEntity.setAccountEnabled(true);
+            userEntity.setUserId(UUID.randomUUID().toString().replace("-", ""));
             userEntity.setVerified(isVerified);
-            userEntity.setUserVerificationEntityId(userVerificationService.createUserVerificationEntity(userEntity.getId()).getId());
+            userEntity.setUserVerificationEntityId(userVerificationService.createUserVerificationEntity(userEntity.getUserId()).getId());
             userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
             userEntity.setRoles(new ArrayList<>(Arrays.asList("USER")));
-            userEntity.setUserCreationTime(Instant.now());
+            userEntity.setUserCreationTime(Timestamp.from(Instant.now()));
             UserEntity createdUser = userRepository.save(userEntity);
 
             if(createdUser != null){

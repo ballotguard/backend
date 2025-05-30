@@ -34,7 +34,7 @@ public class UserController {
                 response.put("firstName", authenticatedUser.get().getFirstName());
                 response.put("lastName", authenticatedUser.get().getLastName());
                 response.put("verified", authenticatedUser.get().isVerified());
-                response.put("enabled", authenticatedUser.get().isEnabled());
+                response.put("enabled", authenticatedUser.get().isAccountEnabled());
                 return ResponseEntity.status(HttpStatus.OK).body(createResponseUtil.createResponseBody(true, "User found", response));
             }else{
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createResponseUtil.createResponseBody(false, "User does not exist"));

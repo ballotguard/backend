@@ -11,7 +11,6 @@
 		<version>3.4.5</version>
 		<relativePath/>
 	</parent>
-
 	<groupId>io.github.ballotguard</groupId>
 	<artifactId>ballotguard</artifactId>
 	<version>0.0.1-SNAPSHOT</version>

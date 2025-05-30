@@ -1,13 +1,17 @@
 package io.github.ballotguard.entities.election;
 
-import java.util.UUID;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class Voter {
+
+    @NonNull
     private String voterEmail;
+
     private String uniqueString;
     private boolean hasVoted;
 
-    Voter() {
-        uniqueString = UUID.randomUUID().toString();
-    }
 }

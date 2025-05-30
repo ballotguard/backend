@@ -46,7 +46,7 @@ public class UserVerificationService {
             UserVerificationEntity userVerificationEntity ;
             Optional<UserVerificationEntity> optionalUserVerificationEntity = userVerificationRepository.findById(userEntity.getUserVerificationEntityId());
             if(!optionalUserVerificationEntity.isPresent()){
-                UserVerificationEntity newUserVerificationEntity = createUserVerificationEntity(userEntity.getId());
+                UserVerificationEntity newUserVerificationEntity = createUserVerificationEntity(userEntity.getUserId());
                 userEntity.setUserVerificationEntityId(newUserVerificationEntity.getId());
                 userRepository.save(userEntity);
                 userVerificationEntity = newUserVerificationEntity;

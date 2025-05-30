@@ -19,7 +19,7 @@ import java.util.ArrayList;
 public class UserEntity {
 
     @Id
-    private String id;
+    private String userId;
 
     @Indexed(unique = true)
     @NonNull
