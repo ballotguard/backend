@@ -7,4 +7,5 @@ import lombok.Setter;
 @Setter
 public class Option {
     private String optionName;
+    private String optionId;
 }

@@ -8,5 +8,4 @@ import java.util.Optional;
 public interface ElectionRepository extends MongoRepository<ElectionEntity, String> {
     Optional<ElectionEntity> findByElectionId(String electionId);
 
-    Optional<ElectionEntity> save(ElectionEntity election);
 }

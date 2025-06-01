@@ -1,4 +1,4 @@
-package io.github.ballotguard.controllers;
+package io.github.ballotguard.controllers.user;
 
 import io.github.ballotguard.utilities.CreateResponseUtil;
 import io.github.ballotguard.utilities.JwtUtil;

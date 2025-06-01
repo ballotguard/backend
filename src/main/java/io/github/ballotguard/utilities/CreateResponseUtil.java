@@ -2,6 +2,7 @@ package io.github.ballotguard.utilities;
 
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,6 +58,12 @@ public class CreateResponseUtil {
     }
 
     public Map createMap(String dataName, String data){
+        Map<String, Object> response = new HashMap<>();
+        response.put(dataName, data);
+        return response;
+    }
+
+    public Map createMap(String dataName, ArrayList data){
         Map<String, Object> response = new HashMap<>();
         response.put(dataName, data);
         return response;

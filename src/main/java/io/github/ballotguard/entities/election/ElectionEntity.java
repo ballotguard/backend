@@ -28,7 +28,7 @@ public class ElectionEntity {
     private String electionDescription;
 
     @NonNull
-    private Layout electionLayout;
+    private ElectionLayout electionLayout;
 
     private ArrayList<Option> options;
 

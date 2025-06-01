@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Layout {
+public class ElectionLayout {
 
     private String pollType;
 
