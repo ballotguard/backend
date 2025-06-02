@@ -35,7 +35,7 @@ public class UserEntity {
 
     private boolean isVerified;
     private boolean isAccountEnabled;
-    private Instant userCreationTime;
+    private long userCreationTime;
 
     private String userVerificationEntityId;
     private String userSettingsEntityId;

@@ -66,7 +66,7 @@ public class UserService {
             userEntity.setUserVerificationEntityId(userVerificationService.createUserVerificationEntity(userEntity.getUserId()).getId());
             userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
             userEntity.setRoles(new ArrayList<>(Arrays.asList("USER")));
-            userEntity.setUserCreationTime(Timestamp.from(Instant.now()));
+            userEntity.setUserCreationTime(Instant.now().getEpochSecond());
             UserEntity createdUser = userRepository.save(userEntity);
 
             if(createdUser != null){
