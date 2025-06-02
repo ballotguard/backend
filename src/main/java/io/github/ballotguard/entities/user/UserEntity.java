@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.sql.Timestamp;
 
+import java.time.Instant;
 import java.util.ArrayList;
 
 @Document(collection = "user")
@@ -34,7 +35,7 @@ public class UserEntity {
 
     private boolean isVerified;
     private boolean isAccountEnabled;
-    private Timestamp userCreationTime;
+    private Instant userCreationTime;
 
     private String userVerificationEntityId;
     private String userSettingsEntityId;

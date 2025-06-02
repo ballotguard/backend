@@ -7,7 +7,6 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -38,11 +37,11 @@ public class ElectionEntity {
 
     private Long totalVotes;
 
-    private Timestamp electionCreationTime;
+    private long electionCreationTime;
 
-    private Timestamp electionStartingTime;
+    private long startTime;
 
-    private Timestamp electionEndingTime;
+    private long endTime;
 
     private String resultLinkString;
 

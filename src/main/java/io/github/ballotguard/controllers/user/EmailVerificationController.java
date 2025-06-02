@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
@@ -18,6 +19,7 @@ import java.util.Optional;
 
 @Slf4j
 @RestController
+@RequestMapping("/verify")
 public class EmailVerificationController {
 
     @Autowired
@@ -30,7 +32,7 @@ public class EmailVerificationController {
     private CreateResponseUtil createResponseUtil;
 
 
-    @PostMapping("/verify/send-email-verification-code")
+    @PostMapping("send-email-verification-code")
     public ResponseEntity sendEmailVerificationCode() {
         try{
             Optional<UserEntity> userEntity = getAuthenticatedUserUtil.getAuthenticatedUser();
@@ -58,7 +60,7 @@ public class EmailVerificationController {
         }
     }
 
-    @PostMapping("/verify/verify-email-verification-code")
+    @PostMapping("verify-email-verification-code")
     public ResponseEntity verifyEmailVerificationCode(@RequestBody Map<String, Object> requestBody) {
 
         try{

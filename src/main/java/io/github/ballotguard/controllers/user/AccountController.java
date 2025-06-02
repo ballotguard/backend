@@ -90,7 +90,7 @@ public class AccountController {
 
             log.error(e.getMessage());
             return ResponseEntity.internalServerError()
-                    .body(createResponseUtil.createResponseBody(false, "An error occurred"));
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred while creating new user"));
 
         }
     }

@@ -32,7 +32,7 @@ public class FindElectionService {
     private MatchTextPatternUtil matchTextPatternUtil;
 
 
-    ResponseEntity findElection(String electionId, String signedInUserId) throws Exception {
+    public ResponseEntity findElectionById(String electionId, String signedInUserId) throws Exception {
         try{
             Optional<ElectionEntity> election = electionRepository.findByElectionId(electionId);
             if(!election.isPresent()){
@@ -58,8 +58,8 @@ public class FindElectionService {
                             .map(Option::getOptionName)
                             .toArray(String[]::new)
             );
-            electionMap.put("electionStartTime", election.get().getElectionStartingTime());
-            electionMap.put("electionEndTime", election.get().getElectionEndingTime());
+            electionMap.put("electionStartTime", election.get().getStartTime());
+            electionMap.put("electionEndTime", election.get().getEndTime());
 
             return ResponseEntity.status(HttpStatus.OK)
                     .body(createResponseUtil.createResponseBody(true, "Election found", electionMap));
@@ -72,7 +72,7 @@ public class FindElectionService {
         }
     }
 
-    ResponseEntity findAllElectionByUser(UserEntity user) throws Exception {
+    public ResponseEntity findAllElectionByUser(UserEntity user) throws Exception {
         try{
             List<String> userElectionsId = user.getUserElectionsId();
 
