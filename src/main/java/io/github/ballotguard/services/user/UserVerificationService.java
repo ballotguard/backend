@@ -81,7 +81,7 @@ public class UserVerificationService {
                 }else if(!userVerificationEntity.get().getVerificationCode().equals(verificationCode)){
 
                     return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
-                            .body(createResponseUtil.createResponseBody(false, "This code is not valid"));
+                            .body(createResponseUtil.createResponseBody(false, "This code is incorrect"));
 
                 }else if(userVerificationEntity.get().getVerificationCode().equals(verificationCode)
                         && userVerificationEntity.get().getVerificationCodeExpirationTime().isBefore(Instant.now())){
@@ -99,6 +99,7 @@ public class UserVerificationService {
                         userRepository.save(userEntity);
                         return ResponseEntity.ok().body(createResponseUtil.createResponseBody(true, responseMessage));
                     }
+
                     return  ResponseEntity.ok().build();
 
                 }

@@ -94,7 +94,7 @@ public class CreateAndDeleteElectionService {
 
 
             election.setElectionId(UUID.randomUUID().toString());
-            election.setCreatorId(getAuthenticatedUserUtil.getAuthenticatedUser().get().getUserId());
+            election.setCreatorId(getAuthenticatedUserUtil.getAuthenticatedUser().getUserId());
             election.setElectionCreationTime(Instant.now().getEpochSecond());
             election.setResultLinkString(UUID.randomUUID().toString());
             election.setTotalVotes((long) 0);

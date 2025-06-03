@@ -112,7 +112,7 @@ public class JwtUtil {
                 return ResponseEntity.status(HttpStatus.OK).body(createResponseUtil.createResponseBody(true, message, response));
             }else{
                 return ResponseEntity.internalServerError()
-                        .body(createResponseUtil.createResponseBody(false, "An error occurred"));
+                        .body(createResponseUtil.createResponseBody(false, "An error occurred while generating response"));
             }
         } catch (Exception e) {
             log.error(e.getMessage());

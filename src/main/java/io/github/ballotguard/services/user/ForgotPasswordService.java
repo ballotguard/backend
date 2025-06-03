@@ -12,7 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -35,13 +34,10 @@ public class ForgotPasswordService {
     @Transactional
     public ResponseEntity resetPassword(String oldPassword, String newPassword) throws Exception {
         try{
-            Optional<UserEntity> authenticatedUserEntity = getAuthenticatedUserUtil.getAuthenticatedUser();
+            UserEntity authenticatedUser = getAuthenticatedUserUtil.getAuthenticatedUser();
 
-            if(!authenticatedUserEntity.isPresent()){
-                return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(createResponseUtil.createResponseBody(false, "User does not exist"));
-
-            }else if(!passwordEncoder.matches(oldPassword, authenticatedUserEntity.get().getPassword())){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponseUtil.createResponseBody(false, "Wrong previous password"));
+            if(!passwordEncoder.matches(oldPassword, authenticatedUser.getPassword())){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponseUtil.createResponseBody(false, "Previous password did not match"));
 
             }else if(newPassword.length() < 8 || newPassword.length() > 50){
 
@@ -52,9 +48,9 @@ public class ForgotPasswordService {
                 return ResponseEntity.badRequest()
                         .body(createResponseUtil.createResponseBody(false, "New password cannot be same as your previous password"));
             }else{
-                authenticatedUserEntity.get().setPassword(passwordEncoder.encode(newPassword));
-                userRepository.save(authenticatedUserEntity.get());
-                return ResponseEntity.ok().body(createResponseUtil.createResponseBody(true, "Password changed"));
+                authenticatedUser.setPassword(passwordEncoder.encode(newPassword));
+                userRepository.save(authenticatedUser);
+                return ResponseEntity.ok().body(createResponseUtil.createResponseBody(true, "Password successfully changed"));
 
             }
 

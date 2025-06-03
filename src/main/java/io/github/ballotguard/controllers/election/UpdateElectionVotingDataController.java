@@ -44,12 +44,9 @@ public class UpdateElectionVotingDataController {
                 return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
                         .body(createResponseUtil.createResponseBody(false, "Election id is empty"));
             }
-            Optional<UserEntity> authenticatedUser = getAuthenticatedUserUtil.getAuthenticatedUser();
+            UserEntity authenticatedUser = getAuthenticatedUserUtil.getAuthenticatedUser();
 
-            if(!authenticatedUser.isPresent()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(createResponseUtil.createResponseBody(false, "Authentication information is invalid"));
-            }else if(!authenticatedUser.get().getUserElectionsId().contains(electionId)){
+            if(!authenticatedUser.getUserElectionsId().contains(electionId)){
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(createResponseUtil.createResponseBody(false, "This user does not own this election"));
             }
@@ -74,12 +71,9 @@ public class UpdateElectionVotingDataController {
                 return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
                         .body(createResponseUtil.createResponseBody(false, "Election id is empty"));
             }
-            Optional<UserEntity> authenticatedUser = getAuthenticatedUserUtil.getAuthenticatedUser();
+            UserEntity authenticatedUser = getAuthenticatedUserUtil.getAuthenticatedUser();
 
-            if(!authenticatedUser.isPresent()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(createResponseUtil.createResponseBody(false, "Authentication information is invalid"));
-            }else if(!authenticatedUser.get().getUserElectionsId().contains(electionId)){
+           if(!authenticatedUser.getUserElectionsId().contains(electionId)){
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(createResponseUtil.createResponseBody(false, "This user does not own this election"));
             }

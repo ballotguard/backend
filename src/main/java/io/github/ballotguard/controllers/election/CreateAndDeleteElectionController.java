@@ -30,13 +30,10 @@ public class CreateAndDeleteElectionController {
     @GetMapping("create")
     public ResponseEntity createNewElection(@RequestBody ElectionEntity election) {
         try {
-            Optional<UserEntity> authenticatedUser = getAuthenticatedUserUtil.getAuthenticatedUser();
-            if (authenticatedUser.isPresent()) {
-                return createAndDeleteElectionService.creatElection(election, authenticatedUser.get());
-            }else{
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(createResponseUtil.createResponseBody(false, "Authentication information is invalid"));
-            }
+            UserEntity authenticatedUser = getAuthenticatedUserUtil.getAuthenticatedUser();
+
+                return createAndDeleteElectionService.creatElection(election, authenticatedUser);
+
         }catch (Exception e) {
             log.error(e.getMessage());
             return ResponseEntity.internalServerError()
@@ -53,16 +50,15 @@ public class CreateAndDeleteElectionController {
                 return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
                         .body(createResponseUtil.createResponseBody(false, "Election id is empty"));
             }
-            Optional<UserEntity> authenticatedUser = getAuthenticatedUserUtil.getAuthenticatedUser();
-            if(!authenticatedUser.isPresent()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(createResponseUtil.createResponseBody(false, "Authentication information is invalid"));
-            }else if(!authenticatedUser.get().getUserElectionsId().contains(electionId)){
+            UserEntity authenticatedUser = getAuthenticatedUserUtil.getAuthenticatedUser();
+
+
+            if(!authenticatedUser.getUserElectionsId().contains(electionId)){
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(createResponseUtil.createResponseBody(false, "This user does not own this election"));
             }
 
-            return createAndDeleteElectionService.deleteElection(electionId, authenticatedUser.get());
+            return createAndDeleteElectionService.deleteElection(electionId, authenticatedUser);
 
         }catch (Exception e) {
             log.error(e.getMessage());

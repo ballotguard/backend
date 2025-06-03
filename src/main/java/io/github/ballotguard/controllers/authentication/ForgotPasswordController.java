@@ -1,4 +1,4 @@
-package io.github.ballotguard.controllers.user;
+package io.github.ballotguard.controllers.authentication;
 
 import io.github.ballotguard.entities.user.UserEntity;
 import io.github.ballotguard.services.user.ForgotPasswordService;
@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -34,7 +35,7 @@ public class ForgotPasswordController {
     @Autowired
     UserVerificationService userVerificationService;
 
-
+    @Transactional
     @PostMapping("auth/password-reset/code")
     public ResponseEntity sendForgotPasswordCodeUsingEmail (@RequestBody Map<String, Object> requestBody) {
         String email = (String) requestBody.get("email");
@@ -47,17 +48,18 @@ public class ForgotPasswordController {
                         "Forgot password verification code sent");
             }else{
                 return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
-                        .body(createResponseUtil.createResponseBody(false, "Authentication failed. User does not exist"));
+                        .body(createResponseUtil.createResponseBody(false, "User does not exist"));
             }
         }catch (Exception e){
             log.error(e.getMessage());
             return ResponseEntity.internalServerError()
-                    .body(createResponseUtil.createResponseBody(false, "An error occurred"));
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred while sending password reset verification code"));
         }
 
     }
 
 
+    @Transactional
     @GetMapping("auth/password-reset/verify")
     public ResponseEntity<Map> verifyForgotPasswordVerificationCode(@RequestBody Map<String, Object> requestBody) {
         String email = (String) requestBody.get("email");
@@ -77,12 +79,12 @@ public class ForgotPasswordController {
 
             }else{
                 return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
-                        .body(createResponseUtil.createResponseBody(false, "Authentication failed. User does not exist"));
+                        .body(createResponseUtil.createResponseBody(false, "User does not exist"));
             }
         }catch(Exception e){
             log.error(e.getMessage());
             return ResponseEntity.internalServerError()
-                    .body(createResponseUtil.createResponseBody(false, "An error occurred"));
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred while verifying password reset verification code"));
         }
     }
 
@@ -97,7 +99,7 @@ public class ForgotPasswordController {
         } catch (Exception e) {
             log.error(e.getMessage());
             return ResponseEntity.internalServerError()
-                    .body(createResponseUtil.createResponseBody(false, "An error occurred"));
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred while resetting password"));
         }
     }
 

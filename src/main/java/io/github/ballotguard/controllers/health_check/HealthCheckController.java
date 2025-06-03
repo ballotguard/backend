@@ -1,4 +1,4 @@
-package io.github.ballotguard.controllers;
+package io.github.ballotguard.controllers.health_check;
 
 import io.github.ballotguard.utilities.CreateResponseUtil;
 import lombok.extern.slf4j.Slf4j;

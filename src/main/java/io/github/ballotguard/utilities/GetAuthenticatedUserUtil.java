@@ -16,14 +16,19 @@ public class GetAuthenticatedUserUtil {
     @Autowired
     private UserRepository userRepository;
 
-    public Optional<UserEntity> getAuthenticatedUser() {
+    public UserEntity getAuthenticatedUser() {
        try{
            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
            String email = authentication.getName();
-           return userRepository.findByEmail(email);
+           Optional<UserEntity> user = userRepository.findByEmail(email);
+           if(user.isPresent()) {
+               return user.get();
+           }else{
+               return null;
+           }
        }catch(Exception e){
            log.error(e.getMessage());
-           return Optional.empty();
+           return null;
        }
     }
 }

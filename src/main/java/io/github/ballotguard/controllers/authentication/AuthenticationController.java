@@ -1,4 +1,4 @@
-package io.github.ballotguard.controllers.user;
+package io.github.ballotguard.controllers.authentication;
 
 import io.github.ballotguard.entities.user.UserEntity;
 import io.github.ballotguard.services.user.UserService;
@@ -11,13 +11,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/auth")
-public class AccountController {
+public class AuthenticationController {
 
     @Autowired
     private UserService userService;
@@ -35,6 +36,7 @@ public class AccountController {
     private MatchTextPatternUtil matchTextPatternUtil;
 
 
+    @Transactional
     @PostMapping("signup")
     public ResponseEntity<Map> signup (@RequestBody UserEntity userEntity)  {
         try{
@@ -69,12 +71,12 @@ public class AccountController {
 
                 if(createdUser != null) {
 
-                    return jwtUtil.generateTokenAndUserinfoResponse(createdUser, "User created");
+                    return jwtUtil.generateTokenAndUserinfoResponse(createdUser, "User successfully created");
 
                 }else {
 
                     return ResponseEntity.internalServerError()
-                            .body(createResponseUtil.createResponseBody(false, "User creation failed"));
+                            .body(createResponseUtil.createResponseBody(false, "User creation failed, please try again"));
 
                 }
             }
@@ -116,7 +118,7 @@ public class AccountController {
                 }catch (Exception e) {
                     log.error(e.getMessage());
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                            .body(createResponseUtil.createResponseBody(false, "Wrong email or password"));
+                            .body(createResponseUtil.createResponseBody(false, "Email or password is incorrect"));
 
                 }
             }
@@ -125,7 +127,7 @@ public class AccountController {
 
             log.error(e.getMessage());
             return ResponseEntity.internalServerError()
-                    .body(createResponseUtil.createResponseBody(false, "An error occurred"));
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred while logging user in"));
 
         }
     }

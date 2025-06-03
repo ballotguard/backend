@@ -1,12 +1,16 @@
 package io.github.ballotguard.controllers.user;
 
 import io.github.ballotguard.entities.user.UserEntity;
+import io.github.ballotguard.repositories.UserRepository;
+import io.github.ballotguard.services.user.UserService;
 import io.github.ballotguard.utilities.CreateResponseUtil;
 import io.github.ballotguard.utilities.GetAuthenticatedUserUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,23 +30,48 @@ public class UserController {
     @Autowired
     private GetAuthenticatedUserUtil getAuthenticatedUserUtil;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @GetMapping("user")
-    public ResponseEntity<Map<String, Object>> getLoggedInUserInfo() {
+    public ResponseEntity getLoggedInUserInfo() {
         try{
-            Optional<UserEntity> authenticatedUser =  getAuthenticatedUserUtil.getAuthenticatedUser();
-            if(authenticatedUser.isPresent()) {
+            UserEntity authenticatedUser = getAuthenticatedUserUtil.getAuthenticatedUser();
 
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body(createResponseUtil.createResponseBody(true, "User found", createResponseUtil.createUserinfoResponse(authenticatedUser.get())));
-            }else{
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(createResponseUtil.createResponseBody(false, "User does not exist"));
-            }
+                        .body(createResponseUtil.createResponseBody(true, "User found", createResponseUtil.createUserinfoResponse(authenticatedUser)));
+
         }catch (Exception e) {
             log.error(e.getMessage());
             return ResponseEntity.internalServerError()
-                    .body(createResponseUtil.createResponseBody(false, "An error occurred"));
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred while fetching user"));
         }
     }
+
+    @Transactional
+    @DeleteMapping("user/delete")
+    public ResponseEntity deleteLoggedInUser() {
+        try{
+            UserEntity authenticatedUser =  getAuthenticatedUserUtil.getAuthenticatedUser();
+
+                userRepository.deleteById(authenticatedUser.getUserId());
+                UserEntity userById = userRepository.findById(authenticatedUser.getUserId()).orElse(null);
+                UserEntity userByEmail = userRepository.findByEmail(authenticatedUser.getEmail()).orElse(null);
+                if(userById == null && userByEmail == null) {
+                    return ResponseEntity.status(HttpStatus.OK)
+                            .body(createResponseUtil.createResponseBody(true, "User is successfully deleted"));
+                }else{
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(createResponseUtil.createResponseBody(false, "User deletion has concluded partial or unsuccessful"));
+                }
+
+        }catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.internalServerError()
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred while deleting user"));
+        }
+    }
+
+
 
 }
