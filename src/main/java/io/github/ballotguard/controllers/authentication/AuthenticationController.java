@@ -91,7 +91,7 @@ public class AuthenticationController {
     }
 
 
-    @GetMapping("login")
+    @PostMapping("login")
     public ResponseEntity<Map> login (@RequestBody Map<String, Object> requestBody) {
 
         try{

@@ -6,10 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -23,7 +20,7 @@ public class TokenController {
     @Autowired
     private CreateResponseUtil createResponseUtil;
 
-    @GetMapping("refresh")
+    @PostMapping("refresh")
     public ResponseEntity<Map> refreshToken(@RequestBody Map<String, Object> requestBody) {
 
         try{
@@ -47,7 +44,7 @@ public class TokenController {
         }
     }
 
-    @GetMapping("token-verification")
+    @PostMapping("token-verification")
     public ResponseEntity<Map> verifyToken(@RequestBody Map<String, Object> requestBody) {
 
         try{

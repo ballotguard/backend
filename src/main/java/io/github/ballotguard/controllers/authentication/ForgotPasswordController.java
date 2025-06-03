@@ -60,7 +60,7 @@ public class ForgotPasswordController {
 
 
     @Transactional
-    @GetMapping("auth/password-reset/verify")
+    @PostMapping("auth/password-reset/verify")
     public ResponseEntity<Map> verifyForgotPasswordVerificationCode(@RequestBody Map<String, Object> requestBody) {
         String email = (String) requestBody.get("email");
         String verificationCode = (String) requestBody.get("verificationCode");
