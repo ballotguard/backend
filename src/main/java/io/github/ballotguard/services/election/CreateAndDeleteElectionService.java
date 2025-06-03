@@ -5,6 +5,7 @@ import io.github.ballotguard.entities.election.Option;
 import io.github.ballotguard.entities.election.Voter;
 import io.github.ballotguard.entities.user.UserEntity;
 import io.github.ballotguard.repositories.ElectionRepository;
+import io.github.ballotguard.repositories.UserRepository;
 import io.github.ballotguard.utilities.CreateResponseUtil;
 import io.github.ballotguard.utilities.GetAuthenticatedUserUtil;
 import io.github.ballotguard.utilities.MatchTextPatternUtil;
@@ -35,6 +36,8 @@ public class CreateAndDeleteElectionService {
 
     @Autowired
     private MatchTextPatternUtil matchTextPatternUtil;
+    @Autowired
+    private UserRepository userRepository;
 
     public ResponseEntity creatElection(ElectionEntity election, UserEntity user) throws Exception {
         try {
@@ -130,7 +133,15 @@ public class CreateAndDeleteElectionService {
             }
 
             user.getUserElectionsId().remove(electionId);
-            return ResponseEntity.status(HttpStatus.OK).body(createResponseUtil.createResponseBody(true, "Election deleted successfully"));
+            electionRepository.deleteById(electionId);
+            userRepository.save(user);
+            Optional<ElectionEntity> election1 = electionRepository.findByElectionId(electionId);
+            if(!election1.isPresent()){
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(createResponseUtil.createResponseBody(true, "Election deletion was not completed"));
+            }
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(createResponseUtil.createResponseBody(true, "Election deleted successfully"));
 
         } catch (Exception e) {
             log.error(e.getMessage());

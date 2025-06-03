@@ -107,7 +107,7 @@ public class JwtUtil {
                 Map<String, Object> response = new HashMap<>();
                 response.put("jwt", jwt);
                 response.put("refreshToken", refreshToken);
-                response.put("userinfo", createResponseUtil.createUserinfoResponse(user));
+                response.put("userInfo", createResponseUtil.createUserinfoResponse(user));
 
                 return ResponseEntity.status(HttpStatus.OK).body(createResponseUtil.createResponseBody(true, message, response));
             }else{
