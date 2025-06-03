@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
@@ -16,6 +17,7 @@ import java.util.Optional;
 
 @Slf4j
 @RestController
+@RequestMapping("/api/v1")
 public class UserController {
 
     @Autowired
@@ -24,7 +26,7 @@ public class UserController {
     @Autowired
     private GetAuthenticatedUserUtil getAuthenticatedUserUtil;
 
-    @GetMapping("/user/logged-in-user-info")
+    @GetMapping("user")
     public ResponseEntity<Map<String, Object>> getLoggedInUserInfo() {
         try{
             Optional<UserEntity> authenticatedUser =  getAuthenticatedUserUtil.getAuthenticatedUser();

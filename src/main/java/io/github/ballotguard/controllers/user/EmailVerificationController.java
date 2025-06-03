@@ -19,7 +19,7 @@ import java.util.Optional;
 
 @Slf4j
 @RestController
-@RequestMapping("/verify")
+@RequestMapping("/api/v1/auth")
 public class EmailVerificationController {
 
     @Autowired
@@ -32,7 +32,7 @@ public class EmailVerificationController {
     private CreateResponseUtil createResponseUtil;
 
 
-    @PostMapping("send-email-verification-code")
+    @PostMapping("email-verification/code")
     public ResponseEntity sendEmailVerificationCode() {
         try{
             Optional<UserEntity> userEntity = getAuthenticatedUserUtil.getAuthenticatedUser();
@@ -60,7 +60,7 @@ public class EmailVerificationController {
         }
     }
 
-    @PostMapping("verify-email-verification-code")
+    @PostMapping("email-verification/verify")
     public ResponseEntity verifyEmailVerificationCode(@RequestBody Map<String, Object> requestBody) {
 
         try{

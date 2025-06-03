@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/public")
-public class PublicController {
+@RequestMapping("api/v1/public")
+public class HealthCheckController {
 
     @Autowired
     private CreateResponseUtil createResponseUtil;

@@ -44,9 +44,10 @@ public class SpringSecurityConfig {
                 .csrf(csrf -> csrf.disable()) //stateless API, so csrf is disabled
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Make API stateless
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/public/**").permitAll()
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("api/v1/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/public/**").permitAll()
+                        .requestMatchers("/api/v1/auth/login").permitAll()
+                        .requestMatchers("/api/v1/auth/signup").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

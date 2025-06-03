@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
@@ -15,15 +16,16 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-public class RefreshJwtController {
+@RequestMapping("/api/v1")
+public class JwtController {
 
     @Autowired
     JwtUtil jwtUtil;
     @Autowired
     private CreateResponseUtil createResponseUtil;
 
-    @GetMapping("/public/refresh-jwt")
-    public ResponseEntity<Map> refreshJwt(@RequestBody Map<String, Object> requestBody) {
+    @GetMapping("public/auth/refresh")
+    public ResponseEntity<Map> refreshToken(@RequestBody Map<String, Object> requestBody) {
 
         try{
             String refreshToken = (String) requestBody.get("refreshToken");
@@ -46,6 +48,31 @@ public class RefreshJwtController {
             log.error(e.getMessage());
             return ResponseEntity.internalServerError()
                     .body(createResponseUtil.createResponseBody(false, "An error occurred"));
+        }
+    }
+
+    @GetMapping("public/auth/token-verification")
+    public ResponseEntity<Map> verifyToken(@RequestBody Map<String, Object> requestBody) {
+
+        try{
+            String token = (String) requestBody.get("token");
+
+
+            if(jwtUtil.validateToken(token, false)){
+
+                return ResponseEntity.ok(createResponseUtil.createResponseBody(true, "This a valid JWT"));
+
+            }else if(jwtUtil.validateToken(token, true)){
+                return ResponseEntity.ok(createResponseUtil.createResponseBody(true, "This a valid Refresh Token"));
+            }else{
+
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(createResponseUtil.createResponseBody(false, "This token is invalid or expired"));
+            }
+        }catch(Exception e){
+            log.error(e.getMessage());
+            return ResponseEntity.internalServerError()
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred while verifying the token"));
         }
     }
 }

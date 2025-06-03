@@ -16,7 +16,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-
+@RequestMapping("/api/v1")
 public class ForgotPasswordController {
 
     @Autowired
@@ -35,7 +35,7 @@ public class ForgotPasswordController {
     UserVerificationService userVerificationService;
 
 
-    @PostMapping("/auth/send-forgot-password-verification-code")
+    @PostMapping("auth/passeprd-reset/code")
     public ResponseEntity sendForgotPasswordCodeUsingEmail (@RequestBody Map<String, Object> requestBody) {
         String email = (String) requestBody.get("email");
         try{
@@ -58,7 +58,7 @@ public class ForgotPasswordController {
     }
 
 
-    @GetMapping("/auth/verify-forgot-password-verification-code")
+    @GetMapping("auth/password-reset/verify")
     public ResponseEntity<Map> verifyForgotPasswordVerificationCode(@RequestBody Map<String, Object> requestBody) {
         String email = (String) requestBody.get("email");
         String verificationCode = (String) requestBody.get("verificationCode");
@@ -86,7 +86,7 @@ public class ForgotPasswordController {
         }
     }
 
-    @PutMapping("/user/reset-password")
+    @PutMapping("user/password-reset")
     public ResponseEntity resetPassword(@RequestBody Map<String, Object> requestBody) {
         try{
             String oldPassword = (String) requestBody.get("oldPassword");
