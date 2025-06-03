@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Component
 @Slf4j
@@ -24,13 +23,13 @@ public class CreateResponseUtil {
         return response;
     }
 
-    public Map createResponseBody(boolean success, String message, String email){
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", success);
-        response.put("message", message);
-        response.put("email", email);
-        return response;
-    }
+//    public Map createResponseBody(boolean success, String message, String email){
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("success", success);
+//        response.put("message", message);
+//        response.put("email", email);
+//        return response;
+//    }
 
 //    public Map createResponseBody(boolean success, String message, String error){
 //        Map<String, Object> response = new HashMap<>();
@@ -40,13 +39,13 @@ public class CreateResponseUtil {
 //        return response;
 //    }
 
-    public Map createResponseBody(boolean success, String message, Map data){
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", success);
-        response.put("message", message);
-        response.put("data", data);
-        return response;
-    }
+//    public Map createResponseBody(boolean success, String message, Map data){
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("success", success);
+//        response.put("message", message);
+//        response.put("data", data);
+//        return response;
+//    }
 
 //    public Map createResponseBody(boolean success, String message , Map userinfo){
 //        Map<String, Object> response = new HashMap<>();
@@ -56,26 +55,29 @@ public class CreateResponseUtil {
 //        return response;
 //    }
 
-    public Map createResponseBody(boolean success, String message, String email, Map data){
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", success);
-        response.put("message", message);
-        response.put("email", email);
-        response.put("data", data);
-        return response;
-    }
+//    public Map createResponseBody(boolean success, String message, String email, Map data){
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("success", success);
+//        response.put("message", message);
+//        response.put("email", email);
+//        response.put("data", data);
+//        return response;
+//    }
 
-    public Map createResponseBody(boolean success, String message, String dataName, String data){
+    public Map createResponseBody(boolean success, String message, String dataName, Object data){
         Map<String, Object> response = new HashMap<>();
         response.put("success", success);
         response.put("message", message);
         response.put(dataName, data);
         return response;
     }
-
-    public Map createMap(String dataName, String data){
+    public Map createResponseBody(boolean success, String message, String dataName1, Object data1, String dataName2, Object data2, String dataName3, Object data3){
         Map<String, Object> response = new HashMap<>();
-        response.put(dataName, data);
+        response.put("success", success);
+        response.put("message", message);
+        response.put(dataName1, data1);
+        response.put(dataName2, data2);
+        response.put(dataName3, data3);
         return response;
     }
 
@@ -85,22 +87,22 @@ public class CreateResponseUtil {
         return response;
     }
 
-    public Map createMap(String dataName1, String data1, String dataName2, String data2){
-        Map<String, Object> response = new HashMap<>();
-        response.put(dataName1, data1);
-        response.put(dataName2, data2);
-        return response;
-    }
+//    public Map createMap(String dataName1, Object data1, String dataName2, Object data2){
+//        Map<String, Object> response = new HashMap<>();
+//        response.put(dataName1, data1);
+//        response.put(dataName2, data2);
+//        return response;
+//    }
 
-    public Map createUserinfoResponse(UserEntity user){
+    public Map createUserinfoMap(UserEntity user){
        try{
-               Map<String, Object> response = new HashMap<>();
-               response.put("email", user.getEmail());
-               response.put("firstName", user.getFirstName());
-               response.put("lastName", user.getLastName());
-               response.put("isVerified", user.isVerified());
-               response.put("isAccountEnabled", user.isAccountEnabled());
-               return response;
+               Map<String, Object> userMap = new HashMap<>();
+               userMap.put("email", user.getEmail());
+               userMap.put("firstName", user.getFirstName());
+               userMap.put("lastName", user.getLastName());
+               userMap.put("isVerified", user.isVerified());
+               userMap.put("isAccountEnabled", user.isAccountEnabled());
+               return userMap;
 
        }catch(Exception e){
            log.error(e.getMessage());

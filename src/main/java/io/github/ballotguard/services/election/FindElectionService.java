@@ -62,7 +62,7 @@ public class FindElectionService {
             electionMap.put("electionEndTime", election.get().getEndTime());
 
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(createResponseUtil.createResponseBody(true, "Election found", electionMap));
+                    .body(createResponseUtil.createResponseBody(true, "Election found", "electionInfo", electionMap));
 
 
 
@@ -91,7 +91,7 @@ public class FindElectionService {
 
             return ResponseEntity.status(HttpStatus.OK)
                     .body(createResponseUtil
-                            .createResponseBody(true, "User elections list is found", createResponseUtil.createMap("userElectionList", userElectionList)));
+                            .createResponseBody(true, "User elections list is found", "electionList", createResponseUtil.createMap("userElectionList", userElectionList)));
 
         }catch(Exception e){
             log.error(e.getMessage());

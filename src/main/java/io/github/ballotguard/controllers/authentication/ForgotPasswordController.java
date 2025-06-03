@@ -77,7 +77,7 @@ public class ForgotPasswordController {
                     ResponseEntity resetPasswordResponse = forgotPasswordService.resetPasswordWithoutPreviousPassword(newPassword, email);
 
                     if(resetPasswordResponse.getStatusCode() == HttpStatus.OK ){
-                        return  jwtUtil.generateTokenAndUserinfoResponse(userResponse.getBody(), "Forgot password code was verified and password reset is successful");
+                        return  jwtUtil.generateTokenAndUserInfoResponse(userResponse.getBody(), "Forgot password code was verified and password reset is successful");
 
                     }else{
                         return resetPasswordResponse;

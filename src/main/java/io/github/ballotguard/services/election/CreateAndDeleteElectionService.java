@@ -110,7 +110,7 @@ public class CreateAndDeleteElectionService {
                 user.setUserElectionsId(userElectionIds);
 
                 return ResponseEntity.status(HttpStatus.CREATED)
-                        .body(createResponseUtil.createResponseBody(true, "Election eas created successfully", (Map) savedElection));
+                        .body(createResponseUtil.createResponseBody(true, "Election eas created successfully", "electionInfo", (Map) savedElection));
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(createResponseUtil.createResponseBody(false, "Election could not be created"));

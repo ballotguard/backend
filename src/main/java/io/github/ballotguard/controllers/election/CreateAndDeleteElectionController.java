@@ -12,10 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-import java.util.Optional;
+
 
 @RestController
-@RequestMapping("election")
+@RequestMapping("/api/v1/user/election")
 @Slf4j
 public class CreateAndDeleteElectionController {
     @Autowired

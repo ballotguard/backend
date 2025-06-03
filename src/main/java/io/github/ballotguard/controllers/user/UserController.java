@@ -3,7 +3,6 @@ package io.github.ballotguard.controllers.user;
 import io.github.ballotguard.entities.user.UserEntity;
 import io.github.ballotguard.repositories.UserRepository;
 import io.github.ballotguard.services.user.ForgotPasswordService;
-import io.github.ballotguard.services.user.UserService;
 import io.github.ballotguard.utilities.CreateResponseUtil;
 import io.github.ballotguard.utilities.GetAuthenticatedUserUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -13,9 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -40,7 +37,7 @@ public class UserController {
             UserEntity authenticatedUser = getAuthenticatedUserUtil.getAuthenticatedUser();
 
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body(createResponseUtil.createResponseBody(true, "User found", "userInfo", createResponseUtil.createUserinfoResponse(authenticatedUser)));
+                        .body(createResponseUtil.createResponseBody(true, "User found", "userInfo", createResponseUtil.createUserinfoMap(authenticatedUser)));
 
         }catch (Exception e) {
             log.error(e.getMessage());

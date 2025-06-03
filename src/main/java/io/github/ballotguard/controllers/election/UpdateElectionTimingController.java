@@ -1,6 +1,5 @@
 package io.github.ballotguard.controllers.election;
 
-import io.github.ballotguard.entities.election.Option;
 import io.github.ballotguard.entities.user.UserEntity;
 import io.github.ballotguard.services.election.UpdateElectionTimingService;
 import io.github.ballotguard.utilities.CreateResponseUtil;
@@ -14,12 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("election/update")
+@RequestMapping("/api/v1/user/election/update")
 @Slf4j
 public class UpdateElectionTimingController {
     @Autowired

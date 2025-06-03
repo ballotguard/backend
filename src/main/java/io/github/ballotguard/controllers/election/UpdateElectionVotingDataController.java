@@ -6,7 +6,6 @@ import io.github.ballotguard.entities.user.UserEntity;
 import io.github.ballotguard.services.election.UpdateElectionVotingDataService;
 import io.github.ballotguard.utilities.CreateResponseUtil;
 import io.github.ballotguard.utilities.GetAuthenticatedUserUtil;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,10 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/election/update")
+@RequestMapping("/api/v1/user/election/update")
 @Slf4j
 public class UpdateElectionVotingDataController {
     @Autowired

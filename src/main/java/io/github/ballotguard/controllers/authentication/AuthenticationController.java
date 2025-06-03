@@ -87,7 +87,7 @@ public class AuthenticationController {
                     }else{
                         message += " but verification code was not sent";
                     }
-                    return jwtUtil.generateTokenAndUserinfoResponse(createdUser, message);
+                    return jwtUtil.generateTokenAndUserInfoResponse(createdUser, message);
 
                 }else {
 
@@ -129,7 +129,7 @@ public class AuthenticationController {
                             new UsernamePasswordAuthenticationToken(email, password)
                     );
 
-                    return jwtUtil.generateTokenAndUserinfoResponse(userService.findUser(email, "email").getBody(), "Login successful");
+                    return jwtUtil.generateTokenAndUserInfoResponse(userService.findUser(email, "email").getBody(), "Login successful");
 
                 }catch (Exception e) {
                     log.error(e.getMessage());

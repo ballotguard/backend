@@ -11,10 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-import java.util.Optional;
+
 
 @RestController
-@RequestMapping("/election/update")
+@RequestMapping("/api/v1/user/election/update")
 @Slf4j
 public class UpdateElectionInfoController {
     @Autowired
@@ -113,7 +113,7 @@ public class UpdateElectionInfoController {
         }
     }
 
-    @PutMapping("polltype")
+    @PutMapping("card-id")
     public ResponseEntity updateElectionCardId(@RequestBody Map<String, Object> requestBody){
 
         try{

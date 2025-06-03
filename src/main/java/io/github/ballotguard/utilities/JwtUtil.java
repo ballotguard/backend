@@ -1,7 +1,6 @@
 package io.github.ballotguard.utilities;
 
 import io.github.ballotguard.entities.user.UserEntity;
-import io.github.ballotguard.services.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -97,19 +96,16 @@ public class JwtUtil {
         }
     }
 
-    public ResponseEntity<Map> generateTokenAndUserinfoResponse(UserEntity user, String message) throws Exception {
+    public ResponseEntity<Map> generateTokenAndUserInfoResponse(UserEntity user, String message) throws Exception {
         try{
             String jwt = generateToken(user.getEmail(), false);
             String refreshToken = generateToken(user.getEmail(), true);
 
             if(jwt != null && refreshToken != null) {
 
-                Map<String, Object> response = new HashMap<>();
-                response.put("jwt", jwt);
-                response.put("refreshToken", refreshToken);
-                response.put("userInfo", createResponseUtil.createUserinfoResponse(user));
-
-                return ResponseEntity.status(HttpStatus.OK).body(createResponseUtil.createResponseBody(true, message, response));
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(createResponseUtil
+                                .createResponseBody(true, message, "userInfo", createResponseUtil.createUserinfoMap(user), "jwt", jwt, "refreshToken", refreshToken));
             }else{
                 return ResponseEntity.internalServerError()
                         .body(createResponseUtil.createResponseBody(false, "An error occurred while generating response"));
