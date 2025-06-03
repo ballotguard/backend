@@ -1,5 +1,6 @@
 package io.github.ballotguard.filters;
 
+import io.github.ballotguard.utilities.CreateResponseUtil;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Bucket4j;
@@ -8,16 +9,24 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class IpRateLimitFilter extends OncePerRequestFilter {
+
+    @Autowired
+    private CreateResponseUtil createResponseUtil;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private final ConcurrentHashMap<String, Bucket> ipBuckets = new ConcurrentHashMap<>();
 
@@ -33,7 +42,7 @@ public class IpRateLimitFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        if (path.startsWith("/public/") || path.startsWith("/auth/")) {
+        if (path.startsWith("/api/")) {
             String ip = getClientIP(request);
             Bucket bucket = ipBuckets.computeIfAbsent(ip, k -> createNewBucket());
 
@@ -41,7 +50,10 @@ public class IpRateLimitFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
             } else {
                 response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-                response.getWriter().write("Too many requests from your IP. Try again later.");
+
+                Map<String, Object> errorBody = createResponseUtil.createResponseBody(false, "Too many requests from your IP. Try again later");
+                response.getWriter().write(objectMapper.writeValueAsString(errorBody));
+
             }
         } else {
             filterChain.doFilter(request, response);
