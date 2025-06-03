@@ -1,5 +1,7 @@
 package io.github.ballotguard.utilities;
 
+import io.github.ballotguard.entities.user.UserEntity;
+import io.github.ballotguard.services.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,7 +66,7 @@ public class JwtUtil {
        try{
            long tokenLifetimeInMillis ;
            if(isRefresh){
-               tokenLifetimeInMillis = 1000L * 60 * 60 * 24 * 90;
+               tokenLifetimeInMillis = 1000L * 60 * 60 * 24 * 15;
            }else{
                tokenLifetimeInMillis = 1000L * 60 * 15;
            }
@@ -87,7 +89,7 @@ public class JwtUtil {
 
     public Boolean validateToken(String token, Boolean isRefresh) {
         try {
-            extractAllClaims(token, isRefresh); //this will throw error is jwt in signed with the correct signing key
+            extractAllClaims(token, isRefresh); //this will throw error if jwt is not signed with the correct signing key
             return !isTokenExpired(token, isRefresh);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -95,18 +97,19 @@ public class JwtUtil {
         }
     }
 
-    public ResponseEntity<Map> generateJwtAndRefreshTokenResponse(String email, String message) throws Exception {
+    public ResponseEntity<Map> generateTokenAndUserinfoResponse(UserEntity user, String message) throws Exception {
         try{
-            String jwt = generateToken(email, false);
-            String refreshToken = generateToken(email, true);
+            String jwt = generateToken(user.getEmail(), false);
+            String refreshToken = generateToken(user.getEmail(), true);
 
             if(jwt != null && refreshToken != null) {
 
-                Map<String, Object> tokens = new HashMap<>();
-                tokens.put("jwt", jwt);
-                tokens.put("refreshToken", refreshToken);
+                Map<String, Object> response = new HashMap<>();
+                response.put("jwt", jwt);
+                response.put("refreshToken", refreshToken);
+                response.put("userinfo", createResponseUtil.createUserinfoResponse(user));
 
-                return ResponseEntity.status(HttpStatus.OK).body(createResponseUtil.createResponseBody(true, message, tokens ));
+                return ResponseEntity.status(HttpStatus.OK).body(createResponseUtil.createResponseBody(true, message, response));
             }else{
                 return ResponseEntity.internalServerError()
                         .body(createResponseUtil.createResponseBody(false, "An error occurred"));

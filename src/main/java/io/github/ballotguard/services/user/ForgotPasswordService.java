@@ -43,6 +43,14 @@ public class ForgotPasswordService {
             }else if(!passwordEncoder.matches(oldPassword, authenticatedUserEntity.get().getPassword())){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createResponseUtil.createResponseBody(false, "Wrong previous password"));
 
+            }else if(newPassword.length() < 8 || newPassword.length() > 50){
+
+                return ResponseEntity.badRequest()
+                        .body(createResponseUtil.createResponseBody(false, "Password must be between 8 and 50 characters"));
+
+            }else if(newPassword.equals(oldPassword)){
+                return ResponseEntity.badRequest()
+                        .body(createResponseUtil.createResponseBody(false, "New password cannot be same as your previous password"));
             }else{
                 authenticatedUserEntity.get().setPassword(passwordEncoder.encode(newPassword));
                 userRepository.save(authenticatedUserEntity.get());

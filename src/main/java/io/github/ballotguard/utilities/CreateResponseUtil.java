@@ -1,13 +1,21 @@
 package io.github.ballotguard.utilities;
 
+import io.github.ballotguard.entities.user.UserEntity;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
+@Slf4j
 public class CreateResponseUtil {
+
+    @Autowired
+    private GetAuthenticatedUserUtil getAuthenticatedUserUtil;
 
     public Map createResponseBody(boolean success, String message){
         Map<String, Object> response = new HashMap<>();
@@ -39,6 +47,14 @@ public class CreateResponseUtil {
         response.put("data", data);
         return response;
     }
+
+//    public Map createResponseBody(boolean success, String message , Map userinfo){
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("success", success);
+//        response.put("message", message);
+//        response.put("data", data);
+//        return response;
+//    }
 
     public Map createResponseBody(boolean success, String message, String email, Map data){
         Map<String, Object> response = new HashMap<>();
@@ -74,6 +90,22 @@ public class CreateResponseUtil {
         response.put(dataName1, data1);
         response.put(dataName2, data2);
         return response;
+    }
+
+    public Map createUserinfoResponse(UserEntity user){
+       try{
+               Map<String, Object> response = new HashMap<>();
+               response.put("email", user.getEmail());
+               response.put("firstName", user.getFirstName());
+               response.put("lastName", user.getLastName());
+               response.put("isVerified", user.isVerified());
+               response.put("isAccountEnabled", user.isAccountEnabled());
+               return response;
+
+       }catch(Exception e){
+           log.error(e.getMessage());
+           return null;
+       }
     }
 
 

@@ -35,7 +35,7 @@ public class ForgotPasswordController {
     UserVerificationService userVerificationService;
 
 
-    @PostMapping("auth/passeprd-reset/code")
+    @PostMapping("auth/password-reset/code")
     public ResponseEntity sendForgotPasswordCodeUsingEmail (@RequestBody Map<String, Object> requestBody) {
         String email = (String) requestBody.get("email");
         try{
@@ -69,7 +69,7 @@ public class ForgotPasswordController {
                 ResponseEntity verificationResponse = userVerificationService.verifyVerificationCode(response.getBody(), verificationCode, true, "");
 
                 if(verificationResponse.getStatusCode() == HttpStatus.OK){
-                    return  jwtUtil.generateJwtAndRefreshTokenResponse(response.getBody().getEmail(), "Forgot password code verified");
+                    return  jwtUtil.generateTokenAndUserinfoResponse(response.getBody(), "Forgot password code verified");
                 }else{
                     return verificationResponse;
                 }

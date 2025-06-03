@@ -31,15 +31,12 @@ public class UserController {
         try{
             Optional<UserEntity> authenticatedUser =  getAuthenticatedUserUtil.getAuthenticatedUser();
             if(authenticatedUser.isPresent()) {
-                Map<String, Object> response= new HashMap<>();
-                response.put("email", authenticatedUser.get().getEmail());
-                response.put("firstName", authenticatedUser.get().getFirstName());
-                response.put("lastName", authenticatedUser.get().getLastName());
-                response.put("verified", authenticatedUser.get().isVerified());
-                response.put("enabled", authenticatedUser.get().isAccountEnabled());
-                return ResponseEntity.status(HttpStatus.OK).body(createResponseUtil.createResponseBody(true, "User found", response));
+
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(createResponseUtil.createResponseBody(true, "User found", createResponseUtil.createUserinfoResponse(authenticatedUser.get())));
             }else{
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createResponseUtil.createResponseBody(false, "User does not exist"));
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(createResponseUtil.createResponseBody(false, "User does not exist"));
             }
         }catch (Exception e) {
             log.error(e.getMessage());

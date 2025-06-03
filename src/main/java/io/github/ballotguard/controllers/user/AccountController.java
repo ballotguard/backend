@@ -1,6 +1,5 @@
 package io.github.ballotguard.controllers.user;
 
-
 import io.github.ballotguard.entities.user.UserEntity;
 import io.github.ballotguard.services.user.UserService;
 import io.github.ballotguard.utilities.CreateResponseUtil;
@@ -12,10 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Map;
 
 @Slf4j
@@ -31,9 +27,6 @@ public class AccountController {
 
     @Autowired
     AuthenticationManager authenticationManager ;
-
-    @Autowired
-    private UserDetailsService userDetailsService;
 
     @Autowired
     private CreateResponseUtil createResponseUtil;
@@ -63,9 +56,9 @@ public class AccountController {
 
             }else{
 
-                ResponseEntity<UserEntity> response = userService.findUser(userEntity.getEmail(), "email");
+                ResponseEntity<UserEntity> userResponse = userService.findUser(userEntity.getEmail(), "email");
 
-                if(response.getStatusCode().equals(HttpStatus.OK)){
+                if(userResponse.getStatusCode().equals(HttpStatus.OK)){
 
                     return ResponseEntity.status(HttpStatus.CONFLICT)
                             .body(createResponseUtil.createResponseBody(false, "Another user with this email already exists"));
@@ -76,7 +69,7 @@ public class AccountController {
 
                 if(createdUser != null) {
 
-                    return jwtUtil.generateJwtAndRefreshTokenResponse(createdUser.getEmail(), "User created");
+                    return jwtUtil.generateTokenAndUserinfoResponse(createdUser, "User created");
 
                 }else {
 
@@ -118,8 +111,7 @@ public class AccountController {
                             new UsernamePasswordAuthenticationToken(email, password)
                     );
 
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-                    return jwtUtil.generateJwtAndRefreshTokenResponse(userDetails.getUsername(), "Login successful");
+                    return jwtUtil.generateTokenAndUserinfoResponse(userService.findUser(email, "email").getBody(), "Login successful");
 
                 }catch (Exception e) {
                     log.error(e.getMessage());

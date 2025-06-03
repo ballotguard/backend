@@ -16,15 +16,15 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1")
-public class JwtController {
+@RequestMapping("/api/v1/auth")
+public class TokenController {
 
     @Autowired
     JwtUtil jwtUtil;
     @Autowired
     private CreateResponseUtil createResponseUtil;
 
-    @GetMapping("public/auth/refresh")
+    @GetMapping("refresh")
     public ResponseEntity<Map> refreshToken(@RequestBody Map<String, Object> requestBody) {
 
         try{
@@ -34,10 +34,7 @@ public class JwtController {
                 String email = jwtUtil.extractEmail(refreshToken, true);
                 String newJwt = jwtUtil.generateToken(email, false);
 
-                Map<String, Object> jwtResponse = new HashMap<>();
-                jwtResponse.put("jwt", newJwt);
-
-                return ResponseEntity.ok(createResponseUtil.createResponseBody(true, "New JWT generated", jwtResponse));
+                return ResponseEntity.ok(createResponseUtil.createResponseBody(true, "New JWT generated", "jwt", newJwt));
 
             }else{
 
@@ -51,7 +48,7 @@ public class JwtController {
         }
     }
 
-    @GetMapping("public/auth/token-verification")
+    @GetMapping("token-verification")
     public ResponseEntity<Map> verifyToken(@RequestBody Map<String, Object> requestBody) {
 
         try{
