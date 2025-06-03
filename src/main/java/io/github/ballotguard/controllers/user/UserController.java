@@ -2,6 +2,7 @@ package io.github.ballotguard.controllers.user;
 
 import io.github.ballotguard.entities.user.UserEntity;
 import io.github.ballotguard.repositories.UserRepository;
+import io.github.ballotguard.services.user.ForgotPasswordService;
 import io.github.ballotguard.services.user.UserService;
 import io.github.ballotguard.utilities.CreateResponseUtil;
 import io.github.ballotguard.utilities.GetAuthenticatedUserUtil;
@@ -10,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +30,9 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ForgotPasswordService forgotPasswordService;
 
     @GetMapping("user")
     public ResponseEntity getLoggedInUserInfo() {
@@ -69,6 +70,21 @@ public class UserController {
             log.error(e.getMessage());
             return ResponseEntity.internalServerError()
                     .body(createResponseUtil.createResponseBody(false, "An error occurred while deleting user"));
+        }
+    }
+
+    @PutMapping("user/password-reset")
+    public ResponseEntity resetPasswordWithPreviousPassword(@RequestBody Map<String, Object> requestBody) {
+        try{
+            String oldPassword = (String) requestBody.get("oldPassword");
+            String newPassword = (String) requestBody.get("newPassword");
+
+            return forgotPasswordService.resetPasswordWithPreviousPassword(oldPassword, newPassword);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.internalServerError()
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred while resetting password"));
         }
     }
 

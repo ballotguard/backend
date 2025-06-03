@@ -2,6 +2,7 @@ package io.github.ballotguard.controllers.authentication;
 
 import io.github.ballotguard.entities.user.UserEntity;
 import io.github.ballotguard.services.user.UserService;
+import io.github.ballotguard.services.user.UserVerificationService;
 import io.github.ballotguard.utilities.CreateResponseUtil;
 import io.github.ballotguard.utilities.JwtUtil;
 import io.github.ballotguard.utilities.MatchTextPatternUtil;
@@ -34,6 +35,9 @@ public class AuthenticationController {
 
     @Autowired
     private MatchTextPatternUtil matchTextPatternUtil;
+
+    @Autowired
+    private UserVerificationService userVerificationService;
 
 
     @Transactional
@@ -71,7 +75,19 @@ public class AuthenticationController {
 
                 if(createdUser != null) {
 
-                    return jwtUtil.generateTokenAndUserinfoResponse(createdUser, "User successfully created");
+                    ResponseEntity emailResponse = userVerificationService.sendVerificationCodeEmail(createdUser,
+                            "Your email verification code",
+                            "Use this code to verify your email in Ballotguard",
+                            "Email verification code sent");
+
+
+                    String message= "User successfully created";
+                    if(emailResponse.getStatusCode().equals(HttpStatus.OK)){
+                        message += " and verification code sent";
+                    }else{
+                        message += " but verification code was not sent";
+                    }
+                    return jwtUtil.generateTokenAndUserinfoResponse(createdUser, message);
 
                 }else {
 

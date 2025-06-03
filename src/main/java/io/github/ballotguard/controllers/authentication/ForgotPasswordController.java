@@ -37,7 +37,7 @@ public class ForgotPasswordController {
 
     @Transactional
     @PostMapping("auth/password-reset/code")
-    public ResponseEntity sendForgotPasswordCodeUsingEmail (@RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity sendForgotPasswordCodeUsingEmail(@RequestBody Map<String, Object> requestBody) {
         String email = (String) requestBody.get("email");
         try{
             ResponseEntity<UserEntity> response = userService.findUser(email, "email");
@@ -60,27 +60,37 @@ public class ForgotPasswordController {
 
 
     @Transactional
-    @PostMapping("auth/password-reset/verify")
+    @PostMapping("auth/password-reset/verify-and-reset")
     public ResponseEntity<Map> verifyForgotPasswordVerificationCode(@RequestBody Map<String, Object> requestBody) {
-        String email = (String) requestBody.get("email");
-        String verificationCode = (String) requestBody.get("verificationCode");
+
         try{
-            ResponseEntity<UserEntity> response = userService.findUser(email, "email");
+            String email = (String) requestBody.get("email");
+            String verificationCode = (String) requestBody.get("verificationCode");
+            String newPassword = (String) requestBody.get("newPassword");
 
-            if(response.getStatusCode() == HttpStatus.OK ){
-                ResponseEntity verificationResponse = userVerificationService.verifyVerificationCode(response.getBody(), verificationCode, true, "");
+            ResponseEntity<UserEntity> userResponse = userService.findUser(email, "email");
 
-                if(verificationResponse.getStatusCode() == HttpStatus.OK){
-                    return  jwtUtil.generateTokenAndUserinfoResponse(response.getBody(), "Forgot password code verified");
+            if(userResponse.getStatusCode() == HttpStatus.OK ){
+                ResponseEntity verificationResponse = userVerificationService.verifyVerificationCode(userResponse.getBody(), verificationCode, true, "");
+
+                if(verificationResponse.getStatusCode() == HttpStatus.OK ){
+                    ResponseEntity resetPasswordResponse = forgotPasswordService.resetPasswordWithoutPreviousPassword(newPassword, email);
+
+                    if(resetPasswordResponse.getStatusCode() == HttpStatus.OK ){
+                        return  jwtUtil.generateTokenAndUserinfoResponse(userResponse.getBody(), "Forgot password code was verified and password reset is successful");
+
+                    }else{
+                        return resetPasswordResponse;
+                    }
                 }else{
                     return verificationResponse;
                 }
-
 
             }else{
                 return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
                         .body(createResponseUtil.createResponseBody(false, "User does not exist"));
             }
+
         }catch(Exception e){
             log.error(e.getMessage());
             return ResponseEntity.internalServerError()
@@ -88,20 +98,6 @@ public class ForgotPasswordController {
         }
     }
 
-    @PutMapping("user/password-reset")
-    public ResponseEntity resetPassword(@RequestBody Map<String, Object> requestBody) {
-        try{
-            String oldPassword = (String) requestBody.get("oldPassword");
-            String newPassword = (String) requestBody.get("newPassword");
-
-            return forgotPasswordService.resetPassword(oldPassword, newPassword);
-
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return ResponseEntity.internalServerError()
-                    .body(createResponseUtil.createResponseBody(false, "An error occurred while resetting password"));
-        }
-    }
 
 
 
