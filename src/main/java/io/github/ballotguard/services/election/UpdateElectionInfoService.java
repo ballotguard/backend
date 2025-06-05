@@ -104,6 +104,17 @@ public class UpdateElectionInfoService {
                                 .createResponseBody(false, "Changes to the election aren’t allowed once it is 20 minutes away from starting."));
             }
 
+            if (pollType != "checkbox" && pollType != "radio") {
+                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                        .body(createResponseUtil.createResponseBody(false, "Election poll type is invalid"));
+            }
+
+            if(election.get().getElectionLayout().getPollType().equals(pollType)){
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(createResponseUtil.createResponseBody(false, "Election poll type is already set to "+ pollType));
+            }
+
+
             election.get().getElectionLayout().setPollType(pollType);
 
             ElectionEntity savedElection = electionRepository.save(election.get());

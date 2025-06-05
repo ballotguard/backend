@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +32,7 @@ public class UpdateElectionVotingDataController {
     @Autowired
     private UpdateElectionVotingDataService updateElectionVotingDataService;
 
+    @Transactional
     @PutMapping("voters")
     public ResponseEntity updateVoters(@RequestBody Map<String, Object> requestBody){
 
@@ -58,6 +60,7 @@ public class UpdateElectionVotingDataController {
         }
     }
 
+    @Transactional
     @PutMapping("options")
     public ResponseEntity updateOptions(@RequestBody Map<String, Object> requestBody){
 

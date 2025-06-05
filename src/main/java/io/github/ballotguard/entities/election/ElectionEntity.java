@@ -43,6 +43,6 @@ public class ElectionEntity {
 
     private long endTime;
 
-    private String resultLinkString;
+    private String uniqueString;
 
 }

@@ -2,6 +2,7 @@ package io.github.ballotguard.services.user;
 
 import io.github.ballotguard.entities.user.UserEntity;
 import io.github.ballotguard.repositories.UserRepository;
+import io.github.ballotguard.utilities.GenerateAndValidateStringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Slf4j
 @Service
@@ -27,6 +28,9 @@ public class UserService {
 
     @Autowired
     private UserVerificationService userVerificationService;
+
+    @Autowired
+    private GenerateAndValidateStringUtil generateAndValidateStringUtil;
 
     public ResponseEntity<UserEntity> findUser(String userinfo, String infoType) throws Exception {
 
@@ -61,7 +65,7 @@ public class UserService {
 
         try{
             userEntity.setAccountEnabled(true);
-            userEntity.setUserId(UUID.randomUUID().toString().replace("-", ""));
+            userEntity.setUserId(GenerateAndValidateStringUtil.generateUniqueString());
             userEntity.setVerified(isVerified);
             userEntity.setUserVerificationEntityId(userVerificationService.createUserVerificationEntity(userEntity.getUserId()).getId());
             userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));

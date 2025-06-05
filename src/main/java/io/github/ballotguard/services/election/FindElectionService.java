@@ -43,26 +43,10 @@ public class FindElectionService {
                         .body(createResponseUtil.createResponseBody(false, "This election is not owned by this user"));
             }
 
-            Map<String, Object> electionMap = new HashMap<>();
-            electionMap.put("electionId", electionId);
-            electionMap.put("electionName", election.get().getElectionName());
-            electionMap.put("electionDescription", election.get().getElectionDescription());
-
-            List<String> voterEmails = new ArrayList<>();
-            for (Voter voter : election.get().getVoters()) {
-                voterEmails.add(voter.getVoterEmail());
-            }
-            electionMap.put("voters", voterEmails);
-            electionMap.put("options",
-                    election.get().getOptions().stream()
-                            .map(Option::getOptionName)
-                            .toArray(String[]::new)
-            );
-            electionMap.put("electionStartTime", election.get().getStartTime());
-            electionMap.put("electionEndTime", election.get().getEndTime());
 
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(createResponseUtil.createResponseBody(true, "Election found", "electionInfo", electionMap));
+                    .body(createResponseUtil.createResponseBody
+                            (true, "Election found", "electionInfo", createResponseUtil.createElectionInfoMap(election.get())));
 
 
 

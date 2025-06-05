@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -27,9 +28,11 @@ public class CreateAndDeleteElectionController {
     @Autowired
     private CreateAndDeleteElectionService createAndDeleteElectionService;
 
-    @GetMapping("create")
+    @Transactional
+    @PostMapping("create")
     public ResponseEntity createNewElection(@RequestBody ElectionEntity election) {
         try {
+
             UserEntity authenticatedUser = getAuthenticatedUserUtil.getAuthenticatedUser();
 
                 return createAndDeleteElectionService.creatElection(election, authenticatedUser);
@@ -37,15 +40,17 @@ public class CreateAndDeleteElectionController {
         }catch (Exception e) {
             log.error(e.getMessage());
             return ResponseEntity.internalServerError()
-                    .body(createResponseUtil.createResponseBody(false, "An error occurred while creating election."));
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred while creating election"));
         }
     }
 
+    @Transactional
     @DeleteMapping("delete")
     public ResponseEntity deleteElection(@RequestBody Map<String, Object> requestBody) {
 
         try {
             String electionId = (String) requestBody.get("electionId");
+
             if(electionId != null || electionId.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
                         .body(createResponseUtil.createResponseBody(false, "Election id is empty"));

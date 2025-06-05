@@ -75,19 +75,8 @@ public class AuthenticationController {
 
                 if(createdUser != null) {
 
-                    ResponseEntity emailResponse = userVerificationService.sendVerificationCodeEmail(createdUser,
-                            "Your email verification code",
-                            "Use this code to verify your email in Ballotguard",
-                            "Email verification code sent");
 
-
-                    String message= "User successfully created";
-                    if(emailResponse.getStatusCode().equals(HttpStatus.OK)){
-                        message += " and verification code sent";
-                    }else{
-                        message += " but verification code was not sent";
-                    }
-                    return jwtUtil.generateTokenAndUserInfoResponse(createdUser, message);
+                    return jwtUtil.generateTokenAndUserInfoResponse(createdUser, "User successfully created");
 
                 }else {
 

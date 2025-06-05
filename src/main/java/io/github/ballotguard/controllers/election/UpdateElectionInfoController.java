@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -26,6 +27,7 @@ public class UpdateElectionInfoController {
     @Autowired
     private UpdateElectionInfoService updateElectionInfoService;
 
+    @Transactional
     @PutMapping("name")
     public ResponseEntity updateElectionName(@RequestBody Map<String, Object> requestBody){
 
@@ -52,6 +54,7 @@ public class UpdateElectionInfoController {
         }
     }
 
+    @Transactional
     @PutMapping("description")
     public ResponseEntity updateElectionDescription(@RequestBody Map<String, Object> requestBody){
 
@@ -79,6 +82,7 @@ public class UpdateElectionInfoController {
         }
     }
 
+    @Transactional
     @PutMapping("poll-type")
     public ResponseEntity updateElectionPollType(@RequestBody Map<String, Object> requestBody){
 
@@ -113,6 +117,7 @@ public class UpdateElectionInfoController {
         }
     }
 
+    @Transactional
     @PutMapping("card-id")
     public ResponseEntity updateElectionCardId(@RequestBody Map<String, Object> requestBody){
 

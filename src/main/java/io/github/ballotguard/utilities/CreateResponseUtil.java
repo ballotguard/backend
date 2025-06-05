@@ -1,5 +1,8 @@
 package io.github.ballotguard.utilities;
 
+import io.github.ballotguard.entities.election.ElectionEntity;
+import io.github.ballotguard.entities.election.Option;
+import io.github.ballotguard.entities.election.Voter;
 import io.github.ballotguard.entities.user.UserEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,6 +84,12 @@ public class CreateResponseUtil {
         return response;
     }
 
+    public Map createMap(String dataName, Object data){
+        Map<String, Object> response = new HashMap<>();
+        response.put(dataName, data);
+        return response;
+    }
+
     public Map createMap(String dataName, ArrayList data){
         Map<String, Object> response = new HashMap<>();
         response.put(dataName, data);
@@ -94,7 +103,7 @@ public class CreateResponseUtil {
 //        return response;
 //    }
 
-    public Map createUserinfoMap(UserEntity user){
+    public Map createUserInfoMap(UserEntity user){
        try{
                Map<String, Object> userMap = new HashMap<>();
                userMap.put("email", user.getEmail());
@@ -108,6 +117,41 @@ public class CreateResponseUtil {
            log.error(e.getMessage());
            return null;
        }
+    }
+
+    public Map createElectionInfoMap(ElectionEntity election){
+        try{
+            Map<String, Object> electionMap = new HashMap<>();
+            Map<String, Object> electionLayoutMap = new HashMap<>();
+            Map<String, Object> votersMap = new HashMap<>();
+            ArrayList<Map> votersArrayList = new ArrayList<>();
+            ArrayList<Map> optionsArrayList = new ArrayList<>();
+
+
+            electionMap.put("electionId", election.getElectionId());
+            electionMap.put("electionName", election.getElectionName());
+            electionMap.put("electionDescription", election.getElectionDescription());
+            electionMap.put("startTime", election.getStartTime());
+            electionMap.put("endTime", election.getEndTime());
+            electionLayoutMap.put("pollType", election.getElectionLayout().getPollType());
+            electionLayoutMap.put("electionCardId", election.getElectionLayout().getElectionCardId());
+            electionMap.put("electionLayout", electionLayoutMap);
+            for(Option option : election.getOptions()){
+                optionsArrayList.add(createMap("optionName", option.getOptionName()));
+            }
+            electionMap.put("options", optionsArrayList);
+
+            for(Voter voter : election.getVoters()){
+                optionsArrayList.add(createMap("optionName", voter.getVoterEmail()));
+            }
+            electionMap.put("voters", votersArrayList);
+
+            return electionMap;
+
+        }catch(Exception e){
+            log.error(e.getMessage());
+            return null;
+        }
     }
 
 

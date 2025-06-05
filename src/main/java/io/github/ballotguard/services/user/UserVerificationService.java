@@ -6,6 +6,8 @@ import io.github.ballotguard.repositories.UserRepository;
 import io.github.ballotguard.repositories.UserVerificationRepository;
 import io.github.ballotguard.services.EmailService;
 import io.github.ballotguard.utilities.CreateResponseUtil;
+import io.github.ballotguard.utilities.GenerateAndValidateStringUtil;
+import io.github.ballotguard.utilities.GetAuthenticatedUserUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,27 +17,30 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Service
 @Slf4j
 public class UserVerificationService {
 
     @Autowired
-    UserVerificationRepository userVerificationRepository;
+    private UserVerificationRepository userVerificationRepository;
 
     @Autowired
-    EmailService emailService;
+    private EmailService emailService;
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    CreateResponseUtil createResponseUtil;
+    private CreateResponseUtil createResponseUtil;
+
+    @Autowired
+    private GetAuthenticatedUserUtil getAuthenticatedUserUtil;
 
     public UserVerificationEntity createUserVerificationEntity(String userId){
         UserVerificationEntity userVerificationEntity =
-                new UserVerificationEntity(UUID.randomUUID().toString().replace("-", ""), userId, "", Instant.now());
+                new UserVerificationEntity(GenerateAndValidateStringUtil.generateUniqueString(), userId, "", Instant.now());
 
         return userVerificationRepository.save(userVerificationEntity);
     }
@@ -55,7 +60,7 @@ public class UserVerificationService {
                 userVerificationEntity = optionalUserVerificationEntity.get();
             }
 
-            String verificationCode = UUID.randomUUID().toString().replace("-", "").substring(0, 6);
+            String verificationCode = GenerateAndValidateStringUtil.generateOtp(6);
             userVerificationEntity.setVerificationCode(verificationCode);
             userVerificationEntity.setVerificationCodeExpirationTime(Instant.now().plus(Duration.ofMinutes(5)));
             userVerificationRepository.save(userVerificationEntity);

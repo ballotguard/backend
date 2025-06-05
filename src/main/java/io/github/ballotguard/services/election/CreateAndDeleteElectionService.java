@@ -7,6 +7,7 @@ import io.github.ballotguard.entities.user.UserEntity;
 import io.github.ballotguard.repositories.ElectionRepository;
 import io.github.ballotguard.repositories.UserRepository;
 import io.github.ballotguard.utilities.CreateResponseUtil;
+import io.github.ballotguard.utilities.GenerateAndValidateStringUtil;
 import io.github.ballotguard.utilities.GetAuthenticatedUserUtil;
 import io.github.ballotguard.utilities.MatchTextPatternUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -17,9 +18,8 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Service
 @Slf4j
@@ -38,6 +38,9 @@ public class CreateAndDeleteElectionService {
     private MatchTextPatternUtil matchTextPatternUtil;
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private GenerateAndValidateStringUtil generateAndValidateStringUtil;
 
     public ResponseEntity creatElection(ElectionEntity election, UserEntity user) throws Exception {
         try {
@@ -64,7 +67,7 @@ public class CreateAndDeleteElectionService {
             } else if (election.getElectionLayout().getPollType() == null) {
                 return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
                         .body(createResponseUtil.createResponseBody(false, "Election poll type cannot be empty"));
-            } else if (election.getElectionLayout().getPollType() != "CHECKBOX" && election.getElectionLayout().getPollType() != "RADIO") {
+            } else if (!election.getElectionLayout().getPollType().equals("checkbox") && !election.getElectionLayout().getPollType().equals("radio")) {
                 return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
                         .body(createResponseUtil.createResponseBody(false, "Election poll type is invalid"));
             }
@@ -78,7 +81,7 @@ public class CreateAndDeleteElectionService {
                             .body(createResponseUtil.createResponseBody(false, "Option name cannot more than 30 characters"));
                 }
 
-                option.setOptionId(UUID.randomUUID().toString());
+                option.setOptionId(GenerateAndValidateStringUtil.generateUniqueString());
             }
 
             for (Voter voter : election.getVoters()) {
@@ -92,25 +95,28 @@ public class CreateAndDeleteElectionService {
                 }
 
                 voter.setHasVoted(false);
-                voter.setUniqueString(UUID.randomUUID().toString());
+                voter.setUniqueString(GenerateAndValidateStringUtil.generateUniqueString());
             }
 
 
-            election.setElectionId(UUID.randomUUID().toString());
+            election.setElectionId(GenerateAndValidateStringUtil.generateUniqueString());
             election.setCreatorId(getAuthenticatedUserUtil.getAuthenticatedUser().getUserId());
             election.setElectionCreationTime(Instant.now().getEpochSecond());
-            election.setResultLinkString(UUID.randomUUID().toString());
+            election.setUniqueString(GenerateAndValidateStringUtil.generateUniqueString());
             election.setTotalVotes((long) 0);
 
 
             ElectionEntity savedElection = electionRepository.save(election);
             if (savedElection != null) {
                 ArrayList<String> userElectionIds = user.getUserElectionsId();
+                if(userElectionIds==null){
+                    userElectionIds = new ArrayList<>();
+                }
                 userElectionIds.add(savedElection.getElectionId());
                 user.setUserElectionsId(userElectionIds);
 
                 return ResponseEntity.status(HttpStatus.CREATED)
-                        .body(createResponseUtil.createResponseBody(true, "Election eas created successfully", "electionInfo", (Map) savedElection));
+                        .body(createResponseUtil.createResponseBody(true, "Election is created successfully", "electionInfo", createResponseUtil.createElectionInfoMap(savedElection)));
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(createResponseUtil.createResponseBody(false, "Election could not be created"));
