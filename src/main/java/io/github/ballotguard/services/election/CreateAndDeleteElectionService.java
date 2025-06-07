@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
 
 
@@ -104,6 +105,7 @@ public class CreateAndDeleteElectionService {
             election.setElectionCreationTime(Instant.now().getEpochSecond());
             election.setUniqueString(GenerateAndValidateStringUtil.generateUniqueString());
             election.setTotalVotes((long) 0);
+            election.setVoteCount(new HashMap<>());
 
 
             ElectionEntity savedElection = electionRepository.save(election);
@@ -114,6 +116,7 @@ public class CreateAndDeleteElectionService {
                 }
                 userElectionIds.add(savedElection.getElectionId());
                 user.setUserElectionsId(userElectionIds);
+                userRepository.save(user);
 
                 return ResponseEntity.status(HttpStatus.CREATED)
                         .body(createResponseUtil.createResponseBody(true, "Election is created successfully", "electionInfo", createResponseUtil.createElectionInfoMap(savedElection)));
@@ -131,20 +134,15 @@ public class CreateAndDeleteElectionService {
 
     public ResponseEntity deleteElection(String electionId, UserEntity user) throws Exception {
         try {
-            Optional<ElectionEntity> election = electionRepository.findByElectionId(electionId);
 
-            if (!election.isPresent()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(createResponseUtil.createResponseBody(false, "Election not found in database"));
-            }
 
             user.getUserElectionsId().remove(electionId);
             electionRepository.deleteById(electionId);
             userRepository.save(user);
             Optional<ElectionEntity> election1 = electionRepository.findByElectionId(electionId);
-            if(!election1.isPresent()){
+            if(election1.isPresent()){
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body(createResponseUtil.createResponseBody(true, "Election deletion was not completed"));
+                        .body(createResponseUtil.createResponseBody(false, "Election deletion was not completed"));
             }
             return ResponseEntity.status(HttpStatus.OK)
                     .body(createResponseUtil.createResponseBody(true, "Election deleted successfully"));

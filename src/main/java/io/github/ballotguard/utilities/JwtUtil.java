@@ -105,7 +105,7 @@ public class JwtUtil {
 
                 return ResponseEntity.status(HttpStatus.OK)
                         .body(createResponseUtil
-                                .createResponseBody(true, message, "userInfo", createResponseUtil.createUserinfoMap(user), "jwt", jwt, "refreshToken", refreshToken));
+                                .createResponseBody(true, message, "userInfo", createResponseUtil.createUserInfoMap(user), "jwt", jwt, "refreshToken", refreshToken));
             }else{
                 return ResponseEntity.internalServerError()
                         .body(createResponseUtil.createResponseBody(false, "An error occurred while generating response"));

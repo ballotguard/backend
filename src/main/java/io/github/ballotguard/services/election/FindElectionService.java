@@ -32,21 +32,13 @@ public class FindElectionService {
     private MatchTextPatternUtil matchTextPatternUtil;
 
 
-    public ResponseEntity findElectionById(String electionId, String signedInUserId) throws Exception {
+    public ResponseEntity findElectionById(ElectionEntity election) throws Exception {
         try{
-            Optional<ElectionEntity> election = electionRepository.findByElectionId(electionId);
-            if(!election.isPresent()){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(createResponseUtil.createResponseBody(false, "Election not found in database"));
-            }else if(election.get().getCreatorId() != signedInUserId){
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(createResponseUtil.createResponseBody(false, "This election is not owned by this user"));
-            }
 
 
             return ResponseEntity.status(HttpStatus.OK)
                     .body(createResponseUtil.createResponseBody
-                            (true, "Election found", "electionInfo", createResponseUtil.createElectionInfoMap(election.get())));
+                            (true, "Election found", "electionInfo", createResponseUtil.createElectionInfoMap(election)));
 
 
 
@@ -64,7 +56,7 @@ public class FindElectionService {
             for(String electionId : userElectionsId){
                 Optional<ElectionEntity> election = electionRepository.findById(electionId);
 
-                if(election.isPresent() && election.get().getCreatorId() != user.getUserId()) {
+                if(election.isPresent() && election.get().getCreatorId().equals(user.getUserId())) {
                     Map<String, Object> electionMap = new HashMap<>();
                     electionMap.put("electionId", electionId);
                     electionMap.put("electionName", election.get().getElectionName());
@@ -75,7 +67,7 @@ public class FindElectionService {
 
             return ResponseEntity.status(HttpStatus.OK)
                     .body(createResponseUtil
-                            .createResponseBody(true, "User elections list is found", "electionList", createResponseUtil.createMap("userElectionList", userElectionList)));
+                            .createResponseBody(true, "User elections list found", "electionList", userElectionList));
 
         }catch(Exception e){
             log.error(e.getMessage());

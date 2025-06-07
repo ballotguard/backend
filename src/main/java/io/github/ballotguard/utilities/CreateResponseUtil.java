@@ -142,7 +142,7 @@ public class CreateResponseUtil {
             electionMap.put("options", optionsArrayList);
 
             for(Voter voter : election.getVoters()){
-                optionsArrayList.add(createMap("optionName", voter.getVoterEmail()));
+                votersArrayList.add(createMap("voterEmail", voter.getVoterEmail()));
             }
             electionMap.put("voters", votersArrayList);
 

@@ -24,16 +24,23 @@ public class UpdateElectionInfoService {
     private CreateResponseUtil createResponseUtil;
 
 
-    public ResponseEntity updateElectionName(String electionId, String newElectionName) throws Exception {
+    public ResponseEntity updateElectionName(String electionId, String newElectionName, String signedInUserId) throws Exception {
         try{
             Optional<ElectionEntity> election = electionRepository.findByElectionId(electionId);
 
-            if(!election.isPresent()){
+
+            if (!election.isPresent()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(createResponseUtil.createResponseBody(false, "Election not found in database"));
             }
 
-            if(Instant.ofEpochSecond(election.get().getStartTime()).isAfter(Instant.now().minus(Duration.ofMinutes(20)))){
+            if(!election.get().getCreatorId().equals(signedInUserId)){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(createResponseUtil.createResponseBody(false, "This user does not own this election"));
+            }
+
+
+            if(!Instant.ofEpochSecond(election.get().getStartTime()).isAfter(Instant.now().minus(Duration.ofMinutes(20)))){
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(createResponseUtil
                                 .createResponseBody(false, "Changes to the election aren’t allowed once it is 20 minutes away from starting."));
@@ -57,14 +64,19 @@ public class UpdateElectionInfoService {
         }
     }
 
-    public ResponseEntity updateElectionDescription(String electionId, String newElectionDescription) throws Exception {
+    public ResponseEntity updateElectionDescription(String electionId, String newElectionDescription, String signedInUserId) throws Exception {
         try{
             Optional<ElectionEntity> election = electionRepository.findByElectionId(electionId);
             if(!election.isPresent()){
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(createResponseUtil.createResponseBody(false, "Election not found in database"));
             }
-            if(Instant.ofEpochSecond(election.get().getStartTime()).isAfter(Instant.now().minus(Duration.ofMinutes(20)))){
+
+            if(!election.get().getCreatorId().equals(signedInUserId)){
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(createResponseUtil.createResponseBody(false, "This election is not owned by current user"));
+            }
+            if(!Instant.ofEpochSecond(election.get().getStartTime()).isAfter(Instant.now().minus(Duration.ofMinutes(20)))){
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(createResponseUtil
                                 .createResponseBody(false, "Changes to the election aren’t allowed once it is 20 minutes away from starting."));
@@ -89,7 +101,7 @@ public class UpdateElectionInfoService {
         }
     }
 
-    public ResponseEntity updatePollType(String electionId, String pollType) throws Exception {
+    public ResponseEntity updateElectionPollType(String electionId, String pollType, String signedInUserId) throws Exception {
         try{
             Optional<ElectionEntity> election = electionRepository.findByElectionId(electionId);
 
@@ -98,16 +110,17 @@ public class UpdateElectionInfoService {
                         .body(createResponseUtil.createResponseBody(false, "Election not found in database"));
             }
 
-            if(Instant.ofEpochSecond(election.get().getStartTime()).isAfter(Instant.now().minus(Duration.ofMinutes(20)))){
+            if(!election.get().getCreatorId().equals(signedInUserId)){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(createResponseUtil.createResponseBody(false, "This user does not own this election"));
+            }
+
+            if(!Instant.ofEpochSecond(election.get().getStartTime()).isAfter(Instant.now().minus(Duration.ofMinutes(20)))){
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(createResponseUtil
                                 .createResponseBody(false, "Changes to the election aren’t allowed once it is 20 minutes away from starting."));
             }
 
-            if (pollType != "checkbox" && pollType != "radio") {
-                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
-                        .body(createResponseUtil.createResponseBody(false, "Election poll type is invalid"));
-            }
 
             if(election.get().getElectionLayout().getPollType().equals(pollType)){
                 return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -134,7 +147,7 @@ public class UpdateElectionInfoService {
         }
     }
 
-    public ResponseEntity updateElectionCardId(String electionId, String electionCardId) throws Exception {
+    public ResponseEntity updateElectionCardId(String electionId, String electionCardId, String signedInUserId) throws Exception {
         try{
             Optional<ElectionEntity> election = electionRepository.findByElectionId(electionId);
 
@@ -143,10 +156,20 @@ public class UpdateElectionInfoService {
                         .body(createResponseUtil.createResponseBody(false, "Election not found in database"));
             }
 
-            if(Instant.ofEpochSecond(election.get().getStartTime()).isAfter(Instant.now().minus(Duration.ofMinutes(20)))){
+            if(!election.get().getCreatorId().equals(signedInUserId)){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(createResponseUtil.createResponseBody(false, "This user does not own this election"));
+            }
+
+            if(!Instant.ofEpochSecond(election.get().getStartTime()).isAfter(Instant.now().minus(Duration.ofMinutes(20)))){
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(createResponseUtil
                                 .createResponseBody(false, "Changes to the election aren’t allowed once it is 20 minutes away from starting."));
+            }
+
+            if(election.get().getElectionLayout().getElectionCardId().equals(electionCardId)){
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(createResponseUtil.createResponseBody(false, "Election card id is already set to "+ electionCardId));
             }
 
             election.get().getElectionLayout().setElectionCardId(electionCardId);
@@ -155,7 +178,7 @@ public class UpdateElectionInfoService {
 
             if(savedElection!=null){
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body(createResponseUtil.createResponseBody(true, "Election card id updated successfully to" + electionCardId));
+                        .body(createResponseUtil.createResponseBody(true, "Election card id updated successfully to " + electionCardId));
 
             }else{
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -1,6 +1,8 @@
 package io.github.ballotguard.controllers.election;
 
+import io.github.ballotguard.entities.election.ElectionEntity;
 import io.github.ballotguard.entities.user.UserEntity;
+import io.github.ballotguard.repositories.ElectionRepository;
 import io.github.ballotguard.services.election.FindElectionService;
 import io.github.ballotguard.utilities.CreateResponseUtil;
 import io.github.ballotguard.utilities.GetAuthenticatedUserUtil;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/user/election")
@@ -28,23 +31,43 @@ public class FindElectionController {
 
     @Autowired
     private GetAuthenticatedUserUtil getAuthenticatedUserUtil;
+    @Autowired
+    private ElectionRepository electionRepository;
 
     @GetMapping("find")
     public ResponseEntity getElectionDetailsById(@RequestBody Map<String, Object> requestBody) {
         try{
+            UserEntity authenticatedUser = getAuthenticatedUserUtil.getAuthenticatedUser();
+
+            if(!authenticatedUser.isVerified()){
+                return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
+                        .body(createResponseUtil.createResponseBody(false, "User is not verified"));
+            }
+
             String electionId = requestBody.get("electionId").toString();
-            if(electionId != null || electionId.isEmpty()) {
+            if(electionId == null || electionId.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
                         .body(createResponseUtil.createResponseBody(false, "Election id is empty"));
             }
-            UserEntity authenticatedUser = getAuthenticatedUserUtil.getAuthenticatedUser();
 
-            if(!authenticatedUser.getUserElectionsId().contains(electionId)){
+            Optional<ElectionEntity> election = electionRepository.findByElectionId(electionId);
+
+            if (!election.isPresent()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(createResponseUtil.createResponseBody(false, "Election not found in database"));
+            }
+
+            if(!authenticatedUser.getUserElectionsId().contains(electionId) ){
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(createResponseUtil.createResponseBody(false, "This user does not own this election"));
             }
 
-            return findElectionService.findElectionById(electionId, authenticatedUser.getUserId());
+            if(!election.get().getCreatorId().equals(authenticatedUser.getUserId())){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(createResponseUtil.createResponseBody(false, "This election is not owned by current user"));
+            }
+
+            return findElectionService.findElectionById(election.get());
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -58,6 +81,11 @@ public class FindElectionController {
         try{
 
             UserEntity authenticatedUser = getAuthenticatedUserUtil.getAuthenticatedUser();
+
+            if(!authenticatedUser.isVerified()){
+                return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
+                        .body(createResponseUtil.createResponseBody(false, "User is not verified"));
+            }
 
             return findElectionService.findAllElectionByUser(authenticatedUser);
 

@@ -30,7 +30,7 @@ public class UpdateElectionVotingDataService {
 
 
 
-    public ResponseEntity updateVoters(String electionId, ArrayList<Voter> newVoters) throws Exception {
+    public ResponseEntity updateVoters(String electionId, ArrayList<Voter> newVoters, String signedInUserId) throws Exception {
         try{
             Optional<ElectionEntity> election = electionRepository.findByElectionId(electionId);
 
@@ -39,7 +39,12 @@ public class UpdateElectionVotingDataService {
                         .body(createResponseUtil.createResponseBody(false, "Election not found in database"));
             }
 
-            if(Instant.ofEpochSecond(election.get().getStartTime()).isAfter(Instant.now().minus(Duration.ofMinutes(20)))){
+            if(!election.get().getCreatorId().equals(signedInUserId)){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(createResponseUtil.createResponseBody(false, "This user does not own this election"));
+            }
+
+            if(!Instant.ofEpochSecond(election.get().getStartTime()).isAfter(Instant.now().minus(Duration.ofMinutes(20)))){
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(createResponseUtil
                                 .createResponseBody(false, "Changes to the election aren’t allowed once it is 20 minutes away from starting"));
@@ -65,11 +70,11 @@ public class UpdateElectionVotingDataService {
 
             if(savedElection!=null){
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body(createResponseUtil.createResponseBody(true, "Voters added successfully"));
+                        .body(createResponseUtil.createResponseBody(true, "Voters updated successfully"));
 
             }else{
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(createResponseUtil.createResponseBody(false, "Voters could not be added"));
+                        .body(createResponseUtil.createResponseBody(false, "Voters could not be updated"));
             }
 
         }catch(Exception e){
@@ -78,7 +83,7 @@ public class UpdateElectionVotingDataService {
         }
     }
 
-    public ResponseEntity updateOptions(String electionId, ArrayList<Option> newOptions) throws Exception {
+    public ResponseEntity updateOptions(String electionId, ArrayList<Option> newOptions, String signedInUserId) throws Exception {
         try{
             Optional<ElectionEntity> election = electionRepository.findByElectionId(electionId);
 
@@ -87,7 +92,12 @@ public class UpdateElectionVotingDataService {
                         .body(createResponseUtil.createResponseBody(false, "Election not found in database"));
             }
 
-            if(Instant.ofEpochSecond(election.get().getStartTime()).isAfter(Instant.now().minus(Duration.ofMinutes(20)))){
+            if(!election.get().getCreatorId().equals(signedInUserId)){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(createResponseUtil.createResponseBody(false, "This user does not own this election"));
+            }
+
+            if(!Instant.ofEpochSecond(election.get().getStartTime()).isAfter(Instant.now().minus(Duration.ofMinutes(20)))){
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(createResponseUtil
                                 .createResponseBody(false, "Changes to the election aren’t allowed once it is 20 minutes away from starting"));

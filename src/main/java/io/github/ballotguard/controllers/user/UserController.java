@@ -37,7 +37,7 @@ public class UserController {
             UserEntity authenticatedUser = getAuthenticatedUserUtil.getAuthenticatedUser();
 
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body(createResponseUtil.createResponseBody(true, "User found", "userInfo", createResponseUtil.createUserinfoMap(authenticatedUser)));
+                        .body(createResponseUtil.createResponseBody(true, "User found", "userInfo", createResponseUtil.createUserInfoMap(authenticatedUser)));
 
         }catch (Exception e) {
             log.error(e.getMessage());

@@ -24,7 +24,7 @@ public class UpdateElectionTimingService {
     private CreateResponseUtil createResponseUtil;
 
 
-    public ResponseEntity updateElectionStartTime(String electionId, long newStartTime) throws Exception {
+    public ResponseEntity updateElectionStartTime(String electionId, long newStartTime, String signedInUserId) throws Exception {
         try{
             Optional<ElectionEntity> election = electionRepository.findByElectionId(electionId);
 
@@ -33,7 +33,12 @@ public class UpdateElectionTimingService {
                         .body(createResponseUtil.createResponseBody(false, "Election not found in database"));
             }
 
-            if(Instant.ofEpochSecond(election.get().getStartTime()).isAfter(Instant.now().minus(Duration.ofMinutes(20)))){
+            if(!election.get().getCreatorId().equals(signedInUserId)){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(createResponseUtil.createResponseBody(false, "This user does not own this election"));
+            }
+
+            if(!Instant.ofEpochSecond(election.get().getStartTime()).isAfter(Instant.now().minus(Duration.ofMinutes(20)))){
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(createResponseUtil
                                 .createResponseBody(false, "Changes to the election aren’t allowed once it is 20 minutes away from starting."));
@@ -50,11 +55,11 @@ public class UpdateElectionTimingService {
 
             if(savedElection!=null){
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body(createResponseUtil.createResponseBody(true, "Voters added successfully"));
+                        .body(createResponseUtil.createResponseBody(true, "Start time updated successfully"));
 
             }else{
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(createResponseUtil.createResponseBody(false, "Voters could not be added"));
+                        .body(createResponseUtil.createResponseBody(false, "Start time could not be updated"));
             }
 
         }catch(Exception e){
@@ -63,7 +68,7 @@ public class UpdateElectionTimingService {
         }
     }
 
-    public ResponseEntity updateElectionEndTime(String electionId, long newEndTime) throws Exception {
+    public ResponseEntity updateElectionEndTime(String electionId, long newEndTime, String signedInUserId) throws Exception {
         try{
             Optional<ElectionEntity> election = electionRepository.findByElectionId(electionId);
 
@@ -72,7 +77,12 @@ public class UpdateElectionTimingService {
                         .body(createResponseUtil.createResponseBody(false, "Election not found in database"));
             }
 
-            if(Instant.ofEpochSecond(election.get().getStartTime()).isAfter(Instant.now().minus(Duration.ofMinutes(20)))){
+            if(!election.get().getCreatorId().equals(signedInUserId)){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(createResponseUtil.createResponseBody(false, "This user does not own this election"));
+            }
+
+            if(!Instant.ofEpochSecond(election.get().getStartTime()).isAfter(Instant.now().minus(Duration.ofMinutes(20)))){
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(createResponseUtil
                                 .createResponseBody(false, "Changes to the election aren’t allowed once it is 20 minutes away from starting."));
@@ -89,11 +99,11 @@ public class UpdateElectionTimingService {
 
             if(savedElection!=null){
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body(createResponseUtil.createResponseBody(true, "Voters added successfully"));
+                        .body(createResponseUtil.createResponseBody(true, "End time updated successfully"));
 
             }else{
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(createResponseUtil.createResponseBody(false, "Voters could not be added"));
+                        .body(createResponseUtil.createResponseBody(false, "End time could not be updated"));
             }
 
         }catch(Exception e){

@@ -18,7 +18,7 @@ public class ElectionEntity {
     @Id
     private String electionId;
 
-    @NonNull
+//    @NonNull
     private String creatorId;
 
     @NonNull
@@ -33,7 +33,7 @@ public class ElectionEntity {
 
     private ArrayList<Voter> voters;
 
-    private Map<Long, Long> voteCount;
+    private Map<String, Long> voteCount;
 
     private Long totalVotes;
 

@@ -28,15 +28,15 @@ public class UpdateElectionInfoController {
     private UpdateElectionInfoService updateElectionInfoService;
 
     @Transactional
-    @PutMapping("name")
+    @PatchMapping("name")
     public ResponseEntity updateElectionName(@RequestBody Map<String, Object> requestBody){
 
         try{
             String electionId = (String) requestBody.get("electionId");
-            String electionName = requestBody.get("electionName").toString();
-            if(electionId != null || electionId.isEmpty() || electionName != null || electionName.isEmpty()) {
+            String newElectionName = requestBody.get("newElectionName").toString();
+            if(electionId == null || electionId.isEmpty() || newElectionName == null || newElectionName.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
-                        .body(createResponseUtil.createResponseBody(false, "Election id or election name is empty"));
+                        .body(createResponseUtil.createResponseBody(false, "Election id or election name or both is empty"));
             }
             UserEntity authenticatedUser = getAuthenticatedUserUtil.getAuthenticatedUser();
 
@@ -45,7 +45,7 @@ public class UpdateElectionInfoController {
                         .body(createResponseUtil.createResponseBody(false, "This user does not own this election"));
             }
 
-            return updateElectionInfoService.updateElectionName(electionId, electionName);
+            return updateElectionInfoService.updateElectionName(electionId, newElectionName, authenticatedUser.getUserId());
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -55,16 +55,16 @@ public class UpdateElectionInfoController {
     }
 
     @Transactional
-    @PutMapping("description")
+    @PatchMapping("description")
     public ResponseEntity updateElectionDescription(@RequestBody Map<String, Object> requestBody){
 
         try{
             String electionId = (String) requestBody.get("electionId");
-            String electionDescription = requestBody.get("electionDescription").toString();
+            String newElectionDescription = requestBody.get("newElectionDescription").toString();
 
-            if(electionId != null || electionId.isEmpty() || electionDescription != null || electionDescription.isEmpty()) {
+            if(electionId == null || electionId.isEmpty() || newElectionDescription == null || newElectionDescription.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
-                        .body(createResponseUtil.createResponseBody(false, "Election id or election description is empty"));
+                        .body(createResponseUtil.createResponseBody(false, "Election id or election description or both is empty"));
             }
          UserEntity authenticatedUser = getAuthenticatedUserUtil.getAuthenticatedUser();
 
@@ -73,7 +73,7 @@ public class UpdateElectionInfoController {
                         .body(createResponseUtil.createResponseBody(false, "This user does not own this election"));
             }
 
-            return updateElectionInfoService.updateElectionName(electionId, electionDescription);
+            return updateElectionInfoService.updateElectionDescription(electionId, newElectionDescription, authenticatedUser.getUserId());
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -83,20 +83,20 @@ public class UpdateElectionInfoController {
     }
 
     @Transactional
-    @PutMapping("poll-type")
+    @PatchMapping("poll-type")
     public ResponseEntity updateElectionPollType(@RequestBody Map<String, Object> requestBody){
 
         try{
 
             String electionId = (String) requestBody.get("electionId");
-            String pollType = requestBody.get("pollType").toString();
+            String newPollType = (String) requestBody.get("newPollType");
 
-            if(electionId != null || electionId.isEmpty() || pollType != null || pollType.isEmpty()) {
+            if(electionId == null || electionId.isEmpty() || newPollType == null || newPollType.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
-                        .body(createResponseUtil.createResponseBody(false, "Election id or election name && election card id both is empty"));
+                        .body(createResponseUtil.createResponseBody(false, "Election id or poll type or both is empty"));
             }
 
-            if( pollType != "radio" && pollType != "checkbox") {
+            if( newPollType.equals("radio") && newPollType.equals("checkbox")) {
                 return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
                         .body(createResponseUtil.createResponseBody(false, "Poll type is invalid"));
             }
@@ -108,31 +108,31 @@ public class UpdateElectionInfoController {
                         .body(createResponseUtil.createResponseBody(false, "This user does not own this election"));
             }
 
-            return updateElectionInfoService.updateElectionName(electionId, pollType);
+            return updateElectionInfoService.updateElectionPollType(electionId, newPollType, authenticatedUser.getUserId());
 
         } catch (Exception e) {
             log.error(e.getMessage());
             return ResponseEntity.internalServerError()
-                    .body(createResponseUtil.createResponseBody(false, "An error occurred while changing the election description"));
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred while changing the election poll type"));
         }
     }
 
     @Transactional
-    @PutMapping("card-id")
+    @PatchMapping("card-id")
     public ResponseEntity updateElectionCardId(@RequestBody Map<String, Object> requestBody){
 
         try{
 
             String electionId = (String) requestBody.get("electionId");
-            String electionCardId = requestBody.get("electionCardId").toString();
+            String newElectionCardId = (String) requestBody.get("newElectionCardId");
 
-            if(electionId != null || electionId.isEmpty() || electionCardId != null || electionCardId.isEmpty()) {
+            if(electionId == null || electionId.isEmpty() || newElectionCardId == null || newElectionCardId.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
-                        .body(createResponseUtil.createResponseBody(false, "Election id or election name && election card id both is empty"));
+                        .body(createResponseUtil.createResponseBody(false, "Election id or election card id or both is empty"));
             }
 
             try{
-                if( Integer.parseInt(electionCardId) <0 && Integer.parseInt(electionCardId)>5) {
+                if( Integer.parseInt(newElectionCardId) <0 && Integer.parseInt(newElectionCardId)>5) {
                     return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
                             .body(createResponseUtil.createResponseBody(false, "Election card id is invalid"));
                 }
@@ -150,12 +150,12 @@ public class UpdateElectionInfoController {
                         .body(createResponseUtil.createResponseBody(false, "This user does not own this election"));
             }
 
-            return updateElectionInfoService.updateElectionName(electionId, electionCardId);
+            return updateElectionInfoService.updateElectionCardId(electionId, newElectionCardId, authenticatedUser.getUserId());
 
         } catch (Exception e) {
             log.error(e.getMessage());
             return ResponseEntity.internalServerError()
-                    .body(createResponseUtil.createResponseBody(false, "An error occurred while changing the election description"));
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred while changing the election card id"));
         }
     }
 }
