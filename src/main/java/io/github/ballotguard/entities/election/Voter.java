@@ -11,7 +11,7 @@ public class Voter {
     @NonNull
     private String voterEmail;
 
-    private String uniqueString;
+    private String voterId;
     private boolean hasVoted;
 
 }

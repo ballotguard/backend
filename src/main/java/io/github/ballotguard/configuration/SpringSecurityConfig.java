@@ -2,7 +2,7 @@ package io.github.ballotguard.configuration;
 
 
 import io.github.ballotguard.filters.JwtFilter;
-import io.github.ballotguard.services.UserDetailsServiceImpl;
+import io.github.ballotguard.services.user.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

@@ -24,90 +24,86 @@ public class UpdateElectionVotingDataService {
     @Autowired
     private CreateResponseUtil createResponseUtil;
 
-
     @Autowired
     private MatchTextPatternUtil matchTextPatternUtil;
 
-
-
     public ResponseEntity updateVoters(String electionId, ArrayList<Voter> newVoters, String signedInUserId) throws Exception {
-        try{
+        try {
             Optional<ElectionEntity> election = electionRepository.findByElectionId(electionId);
 
-            if(!election.isPresent()){
+            if (!election.isPresent()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(createResponseUtil.createResponseBody(false, "Election not found in database"));
             }
 
-            if(!election.get().getCreatorId().equals(signedInUserId)){
+            if (!election.get().getCreatorId().equals(signedInUserId)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(createResponseUtil.createResponseBody(false, "This user does not own this election"));
             }
 
-            if(!Instant.ofEpochSecond(election.get().getStartTime()).isAfter(Instant.now().minus(Duration.ofMinutes(20)))){
+            // Convert epoch milliseconds
+            if (!Instant.ofEpochMilli(election.get().getStartTime()).isAfter(Instant.now().minus(Duration.ofMinutes(20)))) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(createResponseUtil
                                 .createResponseBody(false, "Changes to the election aren’t allowed once it is 20 minutes away from starting"));
             }
 
-            for(Voter voter : newVoters){
-
-                if(voter.getVoterEmail()==null || voter.getVoterEmail().isEmpty()){
+            for (Voter voter : newVoters) {
+                if (voter.getVoterEmail() == null || voter.getVoterEmail().isEmpty()) {
                     return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
                             .body(createResponseUtil.createResponseBody(false, "Voter email cannot be empty"));
-                }else if(!matchTextPatternUtil.isValidEmail(voter.getVoterEmail())){
+                } else if (!matchTextPatternUtil.isValidEmail(voter.getVoterEmail())) {
                     return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
                             .body(createResponseUtil.createResponseBody(false, "One or all of the voter's email is invalid"));
                 }
 
                 voter.setHasVoted(false);
-                voter.setUniqueString(UUID.randomUUID().toString());
+                voter.setVoterId(UUID.randomUUID().toString());
             }
-
 
             election.get().setVoters(newVoters);
             ElectionEntity savedElection = electionRepository.save(election.get());
 
-            if(savedElection!=null){
+            if (savedElection != null) {
                 return ResponseEntity.status(HttpStatus.OK)
                         .body(createResponseUtil.createResponseBody(true, "Voters updated successfully"));
-
-            }else{
+            } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(createResponseUtil.createResponseBody(false, "Voters could not be updated"));
             }
 
-        }catch(Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage());
             throw new Exception(e.getMessage());
         }
     }
 
     public ResponseEntity updateOptions(String electionId, ArrayList<Option> newOptions, String signedInUserId) throws Exception {
-        try{
+        try {
             Optional<ElectionEntity> election = electionRepository.findByElectionId(electionId);
 
-            if(!election.isPresent()){
+            if (!election.isPresent()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(createResponseUtil.createResponseBody(false, "Election not found in database"));
             }
 
-            if(!election.get().getCreatorId().equals(signedInUserId)){
+            if (!election.get().getCreatorId().equals(signedInUserId)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(createResponseUtil.createResponseBody(false, "This user does not own this election"));
             }
 
-            if(!Instant.ofEpochSecond(election.get().getStartTime()).isAfter(Instant.now().minus(Duration.ofMinutes(20)))){
+            // Convert epoch milliseconds
+            if (!Instant.ofEpochMilli(election.get().getStartTime()).isAfter(Instant.now().minus(Duration.ofMinutes(20)))) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(createResponseUtil
                                 .createResponseBody(false, "Changes to the election aren’t allowed once it is 20 minutes away from starting"));
             }
 
-            for(Option option : newOptions){
-                if(option.getOptionName() == null || option.getOptionName().isEmpty() ){
+            for (Option option : newOptions) {
+                if (option.getOptionName() == null || option.getOptionName().isEmpty()) {
                     return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
                             .body(createResponseUtil.createResponseBody(false, "Option name cannot be empty"));
-                }else if(option.getOptionName().length()>30){
+                } else if (option.getOptionName().length() > 30) {
                     return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
                             .body(createResponseUtil.createResponseBody(false, "Option name cannot more than 30 characters"));
                 }
@@ -118,22 +114,17 @@ public class UpdateElectionVotingDataService {
             election.get().setOptions(newOptions);
             ElectionEntity savedElection = electionRepository.save(election.get());
 
-            if(savedElection!=null){
+            if (savedElection != null) {
                 return ResponseEntity.status(HttpStatus.OK)
                         .body(createResponseUtil.createResponseBody(true, "Options updated successfully"));
-
-            }else{
+            } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(createResponseUtil.createResponseBody(false, "Options could not be updated"));
             }
 
-        }catch(Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage());
             throw new Exception(e.getMessage());
         }
     }
-
-
-
-
 }

@@ -31,45 +31,44 @@ public class FindElectionService {
     @Autowired
     private MatchTextPatternUtil matchTextPatternUtil;
 
-
     public ResponseEntity findElectionById(ElectionEntity election) throws Exception {
-        try{
-
-
+        try {
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(createResponseUtil.createResponseBody
-                            (true, "Election found", "electionInfo", createResponseUtil.createElectionInfoMap(election)));
-
-
-
-        }catch(Exception e){
+                    .body(createResponseUtil.createResponseBody(
+                            true, "Election found", "electionInfo", createResponseUtil.createElectionInfoMap(election)));
+        } catch (Exception e) {
             log.error(e.getMessage());
             throw new Exception(e.getMessage());
         }
     }
 
     public ResponseEntity findAllElectionByUser(UserEntity user) throws Exception {
-        try{
+        try {
             List<String> userElectionsId = user.getUserElectionsId();
 
             ArrayList<Map> userElectionList = new ArrayList<>();
-            for(String electionId : userElectionsId){
+            for (String electionId : userElectionsId) {
                 Optional<ElectionEntity> election = electionRepository.findById(electionId);
 
-                if(election.isPresent() && election.get().getCreatorId().equals(user.getUserId())) {
+                if (election.isPresent() && election.get().getCreatorId().equals(user.getUserId())) {
                     Map<String, Object> electionMap = new HashMap<>();
                     electionMap.put("electionId", electionId);
                     electionMap.put("electionName", election.get().getElectionName());
+
+                    // Optional: Add timestamps in milliseconds for frontend
+                    electionMap.put("startTime", election.get().getStartTime()); // assumed already in milliseconds
+                    electionMap.put("endTime", election.get().getEndTime());
+                    electionMap.put("creationTime", election.get().getElectionCreationTime());
+
                     userElectionList.add(electionMap);
                 }
-
             }
 
             return ResponseEntity.status(HttpStatus.OK)
                     .body(createResponseUtil
                             .createResponseBody(true, "User elections list found", "electionList", userElectionList));
 
-        }catch(Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage());
             throw new Exception(e.getMessage());
         }

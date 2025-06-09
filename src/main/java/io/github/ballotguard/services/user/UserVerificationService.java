@@ -4,7 +4,6 @@ import io.github.ballotguard.entities.user.UserEntity;
 import io.github.ballotguard.entities.user.UserVerificationEntity;
 import io.github.ballotguard.repositories.UserRepository;
 import io.github.ballotguard.repositories.UserVerificationRepository;
-import io.github.ballotguard.services.EmailService;
 import io.github.ballotguard.utilities.CreateResponseUtil;
 import io.github.ballotguard.utilities.GenerateAndValidateStringUtil;
 import io.github.ballotguard.utilities.GetAuthenticatedUserUtil;
@@ -27,7 +26,7 @@ public class UserVerificationService {
     private UserVerificationRepository userVerificationRepository;
 
     @Autowired
-    private EmailService emailService;
+    private VerificationEmailService emailService;
 
     @Autowired
     private UserRepository userRepository;

@@ -29,3 +29,5 @@ app:
   refreshTokenKey: ${REFRESH_TOKEN_KEY}
   cors:
     allowed-origin: ${CORS_ALLOWED_ORIGIN_1}
+  votingLinkSecret: ${VOTING_LINK_STRING_SECRET}
+  votingLinkAlgo: ${VOTING_LINK_ALGO}

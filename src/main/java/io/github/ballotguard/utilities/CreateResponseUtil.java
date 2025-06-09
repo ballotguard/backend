@@ -123,10 +123,8 @@ public class CreateResponseUtil {
         try{
             Map<String, Object> electionMap = new HashMap<>();
             Map<String, Object> electionLayoutMap = new HashMap<>();
-            Map<String, Object> votersMap = new HashMap<>();
             ArrayList<Map> votersArrayList = new ArrayList<>();
             ArrayList<Map> optionsArrayList = new ArrayList<>();
-
 
             electionMap.put("electionId", election.getElectionId());
             electionMap.put("electionName", election.getElectionName());
@@ -137,7 +135,11 @@ public class CreateResponseUtil {
             electionLayoutMap.put("electionCardId", election.getElectionLayout().getElectionCardId());
             electionMap.put("electionLayout", electionLayoutMap);
             for(Option option : election.getOptions()){
-                optionsArrayList.add(createMap("optionName", option.getOptionName()));
+                Map<String, Object> optionMap = new HashMap<>();
+                optionMap.put("optionName", option.getOptionName());
+                optionMap.put("optionId", option.getOptionId());
+                optionsArrayList.add(optionMap);
+
             }
             electionMap.put("options", optionsArrayList);
 
@@ -152,6 +154,35 @@ public class CreateResponseUtil {
             log.error(e.getMessage());
             return null;
         }
+    }
+
+    public Map<String, Object> createElectionResultMap (ElectionEntity election){
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("electionName", election.getElectionName());
+        resultMap.put("electionId", election.getElectionId());
+        resultMap.put("electionDescription", election.getElectionDescription());
+        resultMap.put("totalVotes", election.getTotalVotes());
+        resultMap.put("totalVoters", election.getVoters().size());
+
+        ArrayList<Map> optionsArrayList = new ArrayList<>();
+
+        for(Option option : election.getOptions()){
+            Map<String, Object> optionMap = new HashMap<>();
+            optionMap.put("optionName", option.getOptionName());
+            optionMap.put("optionId", option.getOptionId());
+            optionMap.put("votes", election.getVoteCount().get(option.getOptionId()));
+            optionsArrayList.add(optionMap);
+
+        }
+        resultMap.put("options", optionsArrayList);
+
+        ArrayList<Map> votersArrayList = new ArrayList<>();
+        for(Voter voter : election.getVoters()){
+            votersArrayList.add(createMap("voterEmail", voter.getVoterEmail()));
+        }
+        resultMap.put("voters", votersArrayList);
+
+        return resultMap;
     }
 
 
