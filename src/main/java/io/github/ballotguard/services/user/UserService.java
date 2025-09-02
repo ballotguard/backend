@@ -1,6 +1,7 @@
 package io.github.ballotguard.services.user;
 
 import io.github.ballotguard.entities.user.UserEntity;
+import io.github.ballotguard.entities.user.UserSettingsEntity;
 import io.github.ballotguard.repositories.UserRepository;
 import io.github.ballotguard.utilities.GenerateAndValidateStringUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.UUID;
 
 
 @Slf4j
@@ -71,6 +73,9 @@ public class UserService {
             userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
             userEntity.setRoles(new ArrayList<>(Arrays.asList("USER")));
             userEntity.setUserCreationTime(Instant.now().getEpochSecond());
+            userEntity.setUserElectionsId(new ArrayList<>());
+            UserSettingsEntity userSettingsEntity = new UserSettingsEntity(UUID.randomUUID().toString(), userEntity.getEmail(), "English", "Light", true, true);
+            userEntity.setUserSettingsEntityId(userSettingsEntity.getId());
             UserEntity createdUser = userRepository.save(userEntity);
 
             if(createdUser != null){

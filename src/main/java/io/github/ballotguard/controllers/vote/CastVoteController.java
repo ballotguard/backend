@@ -29,13 +29,20 @@ public class CastVoteController {
     @PutMapping("cast")
     public ResponseEntity castVoteUsingUniqueLink(@RequestBody Map<String, Object> requestBody){
         try{
-            String votingSecret = (String) requestBody.get("votingSecret");
+            String electionId = (String) requestBody.get("electionId");
+            String voterId = (String) requestBody.get("voterId");
             String optionId = (String) requestBody.get("optionId");
 
-            if(votingSecret == null || votingSecret.isEmpty()){
+            if(voterId == null || voterId.isEmpty()){
                 return ResponseEntity
                         .status(HttpStatus.PRECONDITION_FAILED)
-                        .body(createResponseUtil.createResponseBody(false, "Voting secret is empty"));
+                        .body(createResponseUtil.createResponseBody(false, "Voter Id is empty"));
+            }
+
+            if(electionId == null || electionId.isEmpty()){
+                return ResponseEntity
+                        .status(HttpStatus.PRECONDITION_FAILED)
+                        .body(createResponseUtil.createResponseBody(false, "Election Id is empty"));
             }
 
             if(optionId == null || optionId.isEmpty()){
@@ -44,7 +51,7 @@ public class CastVoteController {
                         .body(createResponseUtil.createResponseBody(false, "Option Id is empty"));
             }
 
-            return castVoteService.castVote(votingSecret, optionId);
+            return castVoteService.castVote(electionId, voterId, optionId);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return ResponseEntity

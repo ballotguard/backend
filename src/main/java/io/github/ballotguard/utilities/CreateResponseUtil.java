@@ -156,6 +156,8 @@ public class CreateResponseUtil {
         }
     }
 
+
+
     public Map<String, Object> createElectionResultMap (ElectionEntity election){
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("electionName", election.getElectionName());

@@ -51,6 +51,7 @@ public class SpringSecurityConfig {
                         .requestMatchers("/api/v1/auth/password-reset/**").permitAll()
                         .requestMatchers("/api/v1/auth/refresh").permitAll()
                         .requestMatchers("/api/v1/auth/token-verification").permitAll()
+                        .requestMatchers("/api/v1/user/election/find/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

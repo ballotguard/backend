@@ -47,6 +47,12 @@ public class FindElectionService {
             List<String> userElectionsId = user.getUserElectionsId();
 
             ArrayList<Map> userElectionList = new ArrayList<>();
+
+            if(userElectionsId == null || userElectionsId.isEmpty()){
+                ResponseEntity.status(HttpStatus.OK)
+                        .body(createResponseUtil
+                                .createResponseBody(true, "User elections list found", "electionList", userElectionList));
+            }
             for (String electionId : userElectionsId) {
                 Optional<ElectionEntity> election = electionRepository.findById(electionId);
 

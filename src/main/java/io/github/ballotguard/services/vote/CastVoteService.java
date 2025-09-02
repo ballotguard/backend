@@ -25,11 +25,8 @@ public class CastVoteService {
     @Autowired
     private CreateResponseUtil createResponseUtil;
 
-    public ResponseEntity castVote(String votingString, String optionId) throws Exception {
+    public ResponseEntity castVote(String electionId, String voterId, String optionId) throws Exception {
 
-        String[] castingInfo = votingStringUtil.decrypt(votingString);
-        String electionId = castingInfo[0];
-        String voterId = castingInfo[1];
 
         Optional<ElectionEntity> election = electionRepository.findByElectionId(electionId);
 
@@ -42,13 +39,13 @@ public class CastVoteService {
         if (Instant.now().isBefore(Instant.ofEpochMilli(election.get().getStartTime()))) {
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
-                    .body(createResponseUtil.createResponseBody(false, "Election has not started yet"));
+                    .body(createResponseUtil.createResponseBody(false, "Election has not started yet. You can vote after the election starts."));
         }
 
         if (Instant.now().isAfter(Instant.ofEpochMilli(election.get().getEndTime()))) {
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
-                    .body(createResponseUtil.createResponseBody(false, "Election has ended"));
+                    .body(createResponseUtil.createResponseBody(false, "Election has already ended."));
         }
 
         for (Voter voter : election.get().getVoters()) {

@@ -6,6 +6,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -27,9 +28,12 @@ public class SendVotingLinkEmailService {
     @Autowired
     private VotingStringUtil votingStringUtil;
 
+    @Value("${app.cors.allowed-origin}")
+    private String corsAllowedOrigin;
+
     public ResponseEntity<?> sendVotingLinkToAllVoters(ArrayList<Voter> voters, long startTimeEpochMillis, long endTimeEpochMillis, String electionName, String electionDescription, String electionId) throws Exception {
         for (Voter voter : voters) {
-            String votingLink = "https://ballotguard.vercel.app/"+votingStringUtil.encrypt(electionId, voter.getVoterId());
+            String votingLink = corsAllowedOrigin+"/"+electionId+"/"+voter.getVoterId();
             System.out.println(votingLink);
             sendVotingEmail(voter.getVoterEmail(), "Your private voting link", votingLink, startTimeEpochMillis, endTimeEpochMillis, electionName, electionDescription);
         }
