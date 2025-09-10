@@ -40,7 +40,7 @@ public class UserSettingsController {
     public ResponseEntity updateUserSettings(@RequestBody UserSettingsEntity newUserSettingsEntity) {
         try{
             UserEntity user = getAuthenticatedUserUtil.getAuthenticatedUser();
-            return userSettingsService.updateUserSettingsEntity(user.getUserId(), newUserSettingsEntity);
+            return userSettingsService.updateUserSettingsEntity(user.getUserSettingsEntityId(), newUserSettingsEntity);
 
         }catch (Exception e){
             return ResponseEntity

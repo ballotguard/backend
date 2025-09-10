@@ -8,15 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/user/election/")
+@RequestMapping("/api/v1/")
 @Slf4j
 public class ElectionResultController {
 
@@ -29,8 +26,8 @@ public class ElectionResultController {
     @Autowired
     private ElectionResultService electionResultService;
 
-    @GetMapping("result")
-    public ResponseEntity getElectionResult(@RequestBody Map<String, Object> requestBody) {
+    @GetMapping("user/election/result")
+    public ResponseEntity getElectionResult(@RequestParam String electionId) {
 
         UserEntity authenticatedUser = getAuthenticatedUserUtil.getAuthenticatedUser();
         if(!authenticatedUser.isVerified()){
@@ -38,7 +35,19 @@ public class ElectionResultController {
                     .body(createResponseUtil.createResponseBody(false, "User is not verified"));
         }
 
-        String electionId = requestBody.get("electionId").toString();
+        if(electionId == null || electionId.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
+                    .body(createResponseUtil.createResponseBody(false, "Election id is empty"));
+        }
+
+        return electionResultService.getElectionResult(electionId);
+
+    }
+
+    @GetMapping("election/open/result")
+    public ResponseEntity getOpenElectionResult(@RequestParam String electionId) {
+
+
         if(electionId == null || electionId.isEmpty()) {
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
                     .body(createResponseUtil.createResponseBody(false, "Election id is empty"));

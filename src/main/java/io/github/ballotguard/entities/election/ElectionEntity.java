@@ -31,6 +31,8 @@ public class ElectionEntity {
 
     private ArrayList<Option> options;
 
+    private Boolean isOpen;
+
     private ArrayList<Voter> voters;
 
     private Map<String, Long> voteCount;
@@ -43,6 +45,6 @@ public class ElectionEntity {
 
     private long endTime;
 
-    private String uniqueString;
+    private String openVoteString;
 
 }

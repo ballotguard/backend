@@ -33,7 +33,7 @@ public class SendVotingLinkEmailService {
 
     public ResponseEntity<?> sendVotingLinkToAllVoters(ArrayList<Voter> voters, long startTimeEpochMillis, long endTimeEpochMillis, String electionName, String electionDescription, String electionId) throws Exception {
         for (Voter voter : voters) {
-            String votingLink = corsAllowedOrigin+"/"+electionId+"/"+voter.getVoterId();
+            String votingLink = corsAllowedOrigin+"/election/"+electionId+"/"+voter.getVoterId();
             System.out.println(votingLink);
             sendVotingEmail(voter.getVoterEmail(), "Your private voting link", votingLink, startTimeEpochMillis, endTimeEpochMillis, electionName, electionDescription);
         }
@@ -56,83 +56,121 @@ public class SendVotingLinkEmailService {
         <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
           <style>
+            /* Base */
             body {
               margin: 0;
               padding: 0;
-              background-color: #f5f5f5;
-              font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+              background-color: #020617; /* site dark bg */
+              font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+              color: #e5e7eb; /* slate-200 */
             }
+
+            /* Container */
             .container {
               max-width: 600px;
               margin: 40px auto;
-              background-color: #ffffff;
-              border-radius: 12px;
+              background-color: #0b1220; /* deep panel */
+              border-radius: 14px;
               overflow: hidden;
-              box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-              border: 1px solid #e0e0e0;
+              box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+              border: 1px solid rgba(255,255,255,0.08);
             }
+
+            /* Accent bar (no purple) */
             .top-bar {
-              background: linear-gradient(135deg, #667eea 0%%, #764ba2 100%%);
-       
               height: 8px;
+              background: linear-gradient(90deg, #93c5fd 0%%, #22d3ee 50%%, #10b981 100%%); /* sky -> cyan -> emerald */
             }
+
+            /* Content */
             .content {
               padding: 32px 40px;
               text-align: left;
             }
             .content h2 {
-              margin-top: 0;
-              font-size: 22px;
-              color: #2d3748;
-              font-weight: 600;
+              margin: 0 0 6px 0;
+              font-size: 24px;
+              color: #ffffff;
+              font-weight: 700;
+              letter-spacing: 0.2px;
             }
             .content h3 {
+              margin: 0 0 14px 0;
               font-size: 18px;
-              color: #4a5568;
-              margin-bottom: 10px;
+              color: #cbd5e1; /* slate-300 */
+              font-weight: 600;
             }
             .content p {
               font-size: 15px;
-              color: #4a5568;
-              line-height: 1.6;
+              color: #cbd5e1; /* slate-300 */
+              line-height: 1.7;
+              margin: 0 0 12px 0;
             }
+
+            /* Meta rows */
+            .meta {
+              margin: 18px 0 8px 0;
+              padding: 12px 14px;
+              background-color: rgba(255,255,255,0.03);
+              border: 1px solid rgba(255,255,255,0.08);
+              border-radius: 10px;
+            }
+            .meta strong {
+              color: #e2e8f0;
+              font-weight: 600;
+            }
+
+            /* CTA */
             .button-container {
               text-align: center;
-              margin: 30px 0;
+              margin: 30px 0 18px 0;
             }
             .btn-vote {
-              background: linear-gradient(135deg, #667eea 0%%, #764ba2 100%%);
+              background: #000000; /* matches site buttons: black bg, white text */
               color: #ffffff;
               padding: 14px 28px;
               font-size: 16px;
               text-decoration: none;
-              font-weight: 600;
-              border-radius: 6px;
+              font-weight: 700;
+              border-radius: 10px;
               display: inline-block;
-              transition: transform 0.2s, box-shadow 0.2s;
-              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+              border: 1px solid rgba(255,255,255,0.12);
+              transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+              box-shadow: 0 6px 16px rgba(0,0,0,0.35);
             }
             .btn-vote:hover {
               transform: translateY(-2px);
-              box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+              box-shadow: 0 10px 24px rgba(0,0,0,0.45);
+              background-color: #0a0a0a;
+            }
+
+            /* Notes and footer */
+            .note {
+              font-size: 13px;
+              color: #94a3b8; /* slate-400 */
+              text-align: center;
+              margin-top: 14px;
             }
             .footer {
               font-size: 12px;
-              color: #718096;
+              color: #94a3b8;
               text-align: center;
-              padding: 20px;
-              border-top: 1px solid #edf2f7;
+              padding: 18px 16px 22px 16px;
+              border-top: 1px solid rgba(255,255,255,0.08);
+              background-color: rgba(255,255,255,0.02);
             }
             .footer a {
-              color: #667eea;
+              color: #cbd5e1;
               text-decoration: none;
             }
-            .note {
-              font-size: 13px;
-              color: #718096;
-              text-align: center;
-              margin-top: 20px;
+
+            /* Small screens */
+            @media (max-width: 640px) {
+              .content { padding: 24px 20px; }
+              .content h2 { font-size: 22px; }
+              .content h3 { font-size: 16px; }
             }
           </style>
         </head>
@@ -143,20 +181,22 @@ public class SendVotingLinkEmailService {
               <h2>Your Vote is Requested</h2>
               <h3>%s</h3>
               <p>%s</p>
-              <p>This link will take you to the voting page. You can cast your vote by clicking the button below.</p>
+              <p>This secure link will take you to the voting page. You can cast your vote by clicking the button below.</p>
               <p><strong>Note:</strong> You can only vote once. Please make sure to cast your vote carefully.</p>
-              
+
               <div class="button-container">
-                <a href="%s" class="btn-vote" target="_blank">Vote Now</a>
+                <a href="%s" class="btn-vote" target="_blank" rel="noopener noreferrer">Vote Now</a>
               </div>
-              
-              <p class="note">Voting starts at: <strong>%s</strong><br/>
-              Voting ends at: <strong>%s</strong></p>
-              
+
+              <div class="meta">
+                <p>Voting starts at: <strong>%s</strong></p>
+                <p>Voting ends at: <strong>%s</strong></p>
+              </div>
+
               <p class="note">If you did not expect this email, you can safely ignore it.</p>
             </div>
             <div class="footer">
-              &copy; Ballotguard | <a href="https://github.com/ballotguard">github.com/ballotguard</a>
+              &copy; Ballotguard &nbsp;|&nbsp; <a href="https://github.com/ballotguard">github.com/ballotguard</a>
             </div>
           </div>
         </body>

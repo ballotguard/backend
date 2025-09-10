@@ -31,11 +31,11 @@ public class FindElectionService {
     @Autowired
     private MatchTextPatternUtil matchTextPatternUtil;
 
-    public ResponseEntity findElectionById(ElectionEntity election) throws Exception {
+    public ResponseEntity findElectionById(ElectionEntity election, boolean isElectionOwnersRequest) throws Exception {
         try {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(createResponseUtil.createResponseBody(
-                            true, "Election found", "electionInfo", createResponseUtil.createElectionInfoMap(election)));
+                            true, "Election found", "electionInfo", createResponseUtil.createElectionInfoMap(election, isElectionOwnersRequest)));
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new Exception(e.getMessage());
@@ -60,6 +60,7 @@ public class FindElectionService {
                     Map<String, Object> electionMap = new HashMap<>();
                     electionMap.put("electionId", electionId);
                     electionMap.put("electionName", election.get().getElectionName());
+                    electionMap.put("electionDescription", election.get().getElectionDescription());
 
                     // Optional: Add timestamps in milliseconds for frontend
                     electionMap.put("startTime", election.get().getStartTime()); // assumed already in milliseconds

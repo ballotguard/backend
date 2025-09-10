@@ -14,10 +14,8 @@ import java.time.Instant;
 import java.util.Optional;
 
 @Service
-public class CastVoteService {
+public class CastOpenVoteService {
 
-    @Autowired
-    private VotingStringUtil votingStringUtil;
 
     @Autowired
     private ElectionRepository electionRepository;
@@ -25,7 +23,7 @@ public class CastVoteService {
     @Autowired
     private CreateResponseUtil createResponseUtil;
 
-    public ResponseEntity castVote(String electionId, String voterId, String optionId) throws Exception {
+    public ResponseEntity castVote(String electionId, String optionId) throws Exception {
 
 
         Optional<ElectionEntity> election = electionRepository.findByElectionId(electionId);
@@ -48,23 +46,19 @@ public class CastVoteService {
                     .body(createResponseUtil.createResponseBody(false, "Election has already ended."));
         }
 
-        for (Voter voter : election.get().getVoters()) {
-            if (voterId.equals(voter.getVoterId()) && !voter.isHasVoted()) {
-                election.get().getVoteCount().put(optionId, election.get().getVoteCount().get(optionId) + 1);
-                election.get().setTotalVotes(election.get().getTotalVotes() + 1);
-                voter.setHasVoted(true);
-                electionRepository.save(election.get());
-                return ResponseEntity
-                        .status(HttpStatus.OK)
-                        .body(createResponseUtil.createResponseBody(true, "Successfully casted vote"));
-            }
-        }
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(createResponseUtil.createResponseBody(false, "This voter is not valid in this election"));
+        election.get().getVoteCount().put(optionId, election.get().getVoteCount().get(optionId) + 1);
+        election.get().setTotalVotes(election.get().getTotalVotes() + 1);
+
+        electionRepository.save(election.get());
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(createResponseUtil.createResponseBody(true, "Successfully casted vote"));
+
+
     }
 
-    public ResponseEntity castMultiVote(String electionId, String voterId, String[] optionIds) throws Exception {
+    public ResponseEntity castMultiVote(String electionId, String[] optionIds) throws Exception {
 
 
         Optional<ElectionEntity> election = electionRepository.findByElectionId(electionId);
@@ -87,24 +81,18 @@ public class CastVoteService {
                     .body(createResponseUtil.createResponseBody(false, "Election has already ended."));
         }
 
-        for (Voter voter : election.get().getVoters()) {
-            if (voterId.equals(voter.getVoterId()) && !voter.isHasVoted()) {
-                for(String optionId : optionIds) {
-                    election.get().getVoteCount().put(optionId, election.get().getVoteCount().get(optionId) + 1);
-                }
-                election.get().setTotalVotes(election.get().getTotalVotes() + 1);
-                voter.setHasVoted(true);
 
-
-                electionRepository.save(election.get());
-                return ResponseEntity
-                        .status(HttpStatus.OK)
-                        .body(createResponseUtil.createResponseBody(true, "Successfully casted vote"));
-
-            }
+        for (String optionId : optionIds) {
+            election.get().getVoteCount().put(optionId, election.get().getVoteCount().get(optionId) + 1);
         }
+        election.get().setTotalVotes(election.get().getTotalVotes() + 1);
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(createResponseUtil.createResponseBody(false, "This voter is not valid in this election"));
+
+        electionRepository.save(election.get());
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(createResponseUtil.createResponseBody(true, "Successfully casted vote"));
+
+
     }
 }

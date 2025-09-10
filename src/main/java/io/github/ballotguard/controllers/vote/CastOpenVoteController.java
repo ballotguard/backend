@@ -1,6 +1,7 @@
 package io.github.ballotguard.controllers.vote;
 
 import com.nimbusds.jose.shaded.gson.Gson;
+import io.github.ballotguard.services.vote.CastOpenVoteService;
 import io.github.ballotguard.services.vote.CastVoteService;
 import io.github.ballotguard.utilities.CreateResponseUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -17,11 +18,11 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/public/vote")
-public class CastVoteController {
+@RequestMapping("/api/v1/public/vote/open")
+public class CastOpenVoteController {
 
     @Autowired
-    private CastVoteService castVoteService;
+    private CastOpenVoteService castOpenVoteService;
 
     @Autowired
     private CreateResponseUtil createResponseUtil;
@@ -31,14 +32,8 @@ public class CastVoteController {
     public ResponseEntity castSingleOptionVoteUsingUniqueLink(@RequestBody Map<String, Object> requestBody){
         try{
             String electionId = (String) requestBody.get("electionId");
-            String voterId = (String) requestBody.get("voterId");
             String optionId = (String) requestBody.get("optionId");
 
-            if(voterId == null || voterId.isEmpty()){
-                return ResponseEntity
-                        .status(HttpStatus.PRECONDITION_FAILED)
-                        .body(createResponseUtil.createResponseBody(false, "Voter Id is empty"));
-            }
 
             if(electionId == null || electionId.isEmpty()){
                 return ResponseEntity
@@ -52,7 +47,7 @@ public class CastVoteController {
                         .body(createResponseUtil.createResponseBody(false, "Option Id is empty"));
             }
 
-            return castVoteService.castVote(electionId, voterId, optionId);
+            return castOpenVoteService.castVote(electionId, optionId);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return ResponseEntity
@@ -66,17 +61,11 @@ public class CastVoteController {
     public ResponseEntity castMultiOptionVoteUsingUniqueLink(@RequestBody Map<String, Object> requestBody){
         try{
             String electionId = (String) requestBody.get("electionId");
-            String voterId = (String) requestBody.get("voterId");
 
             Gson gson = new Gson();
             // Convert JSON string to String array
             String[] optionIds = gson.fromJson((String) requestBody.get("optionIds"), String[].class);
 
-            if(voterId == null || voterId.isEmpty()){
-                return ResponseEntity
-                        .status(HttpStatus.PRECONDITION_FAILED)
-                        .body(createResponseUtil.createResponseBody(false, "Voter Id is empty"));
-            }
 
             if(electionId == null || electionId.isEmpty()){
                 return ResponseEntity
@@ -90,7 +79,7 @@ public class CastVoteController {
                         .body(createResponseUtil.createResponseBody(false, "Option Ids is empty"));
             }
 
-            return castVoteService.castMultiVote(electionId, voterId, optionIds);
+            return castOpenVoteService.castMultiVote(electionId, optionIds);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return ResponseEntity

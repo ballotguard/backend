@@ -6,6 +6,7 @@ import io.github.ballotguard.entities.election.Voter;
 import io.github.ballotguard.entities.user.UserEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -18,6 +19,9 @@ public class CreateResponseUtil {
 
     @Autowired
     private GetAuthenticatedUserUtil getAuthenticatedUserUtil;
+
+    @Value("${app.cors.allowed-origin}")
+    private String corsAllowedOrigin;
 
     public Map createResponseBody(boolean success, String message){
         Map<String, Object> response = new HashMap<>();
@@ -119,7 +123,7 @@ public class CreateResponseUtil {
        }
     }
 
-    public Map createElectionInfoMap(ElectionEntity election){
+    public Map createElectionInfoMap(ElectionEntity election, boolean isElectionOwnersRequest){
         try{
             Map<String, Object> electionMap = new HashMap<>();
             Map<String, Object> electionLayoutMap = new HashMap<>();
@@ -129,11 +133,17 @@ public class CreateResponseUtil {
             electionMap.put("electionId", election.getElectionId());
             electionMap.put("electionName", election.getElectionName());
             electionMap.put("electionDescription", election.getElectionDescription());
+            electionMap.put("isOpen", election.getIsOpen());
             electionMap.put("startTime", election.getStartTime());
             electionMap.put("endTime", election.getEndTime());
             electionLayoutMap.put("pollType", election.getElectionLayout().getPollType());
             electionLayoutMap.put("electionCardId", election.getElectionLayout().getElectionCardId());
             electionMap.put("electionLayout", electionLayoutMap);
+
+            if(election.getIsOpen()){
+                electionMap.put("openElectionLink", corsAllowedOrigin +"/election/open/"+election.getElectionId() );
+            }
+
             for(Option option : election.getOptions()){
                 Map<String, Object> optionMap = new HashMap<>();
                 optionMap.put("optionName", option.getOptionName());
@@ -143,10 +153,12 @@ public class CreateResponseUtil {
             }
             electionMap.put("options", optionsArrayList);
 
-            for(Voter voter : election.getVoters()){
-                votersArrayList.add(createMap("voterEmail", voter.getVoterEmail()));
-            }
-            electionMap.put("voters", votersArrayList);
+           if(isElectionOwnersRequest && !election.getIsOpen()){
+               for(Voter voter : election.getVoters()){
+                   votersArrayList.add(createMap("voterEmail", voter.getVoterEmail()));
+               }
+               electionMap.put("voters", votersArrayList);
+           }
 
             return electionMap;
 
@@ -164,7 +176,15 @@ public class CreateResponseUtil {
         resultMap.put("electionId", election.getElectionId());
         resultMap.put("electionDescription", election.getElectionDescription());
         resultMap.put("totalVotes", election.getTotalVotes());
-        resultMap.put("totalVoters", election.getVoters().size());
+
+        if(!election.getIsOpen()){
+            resultMap.put("totalVoters", election.getVoters().size());
+            ArrayList<Map> votersArrayList = new ArrayList<>();
+            for(Voter voter : election.getVoters()){
+                votersArrayList.add(createMap("voterEmail", voter.getVoterEmail()));
+            }
+            resultMap.put("voters", votersArrayList);
+        }
 
         ArrayList<Map> optionsArrayList = new ArrayList<>();
 
@@ -178,11 +198,8 @@ public class CreateResponseUtil {
         }
         resultMap.put("options", optionsArrayList);
 
-        ArrayList<Map> votersArrayList = new ArrayList<>();
-        for(Voter voter : election.getVoters()){
-            votersArrayList.add(createMap("voterEmail", voter.getVoterEmail()));
-        }
-        resultMap.put("voters", votersArrayList);
+
+
 
         return resultMap;
     }

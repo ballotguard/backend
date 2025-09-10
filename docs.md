@@ -729,6 +729,7 @@ Authenticated user updates their settings preferences.
   "electionDescription": "Description of the election",
   "startTime": 1640995200000,
   "endTime": 1641081600000,
+  "isOpen": false,
   "electionLayout": {
     "pollType": "radio",
     "electionCardId": "1"
@@ -766,6 +767,7 @@ User creates a new election.
     "electionId": "uuid-here",
     "electionName": "My Election",
     "electionDescription": "Description of the election",
+    "isOpen": false,
     "startTime": 1640995200000,
     "endTime": 1641081600000,
     "electionLayout": {
@@ -946,16 +948,11 @@ User deletes an election.
 }
 ```
 
-### Find Election
+### Find Election (Owner)
 **Endpoint:**
-`GET /api/v1/user/election/find`
+`GET /api/v1/user/election/find?electionId=`
 
 **Request Body:**
-```json
-{
-  "electionId": "uuid-here"
-}
-```
 
 **Flow:**
 User fetches election details by id.
@@ -971,6 +968,7 @@ User fetches election details by id.
     "electionId": "uuid-here",
     "electionName": "My Election",
     "electionDescription": "Description of the election",
+    "isOpen": false,
     "startTime": 1640995200000,
     "endTime": 1641081600000,
     "electionLayout": {
@@ -1047,6 +1045,161 @@ User fetches election details by id.
 }
 ```
 
+### Find Election for Voter
+**Endpoint:**
+`GET /api/v1/election/find/voter?electionId=&voterId=`
+
+**Request Body:**
+
+**Flow:**
+User fetches election details by id.
+
+**Response JSON Structures:**
+
+**200 OK - Election found:**
+```json
+{
+  "success": true,
+  "message": "Election found",
+  "electionInfo": {
+    "electionId": "uuid-here",
+    "electionName": "My Election",
+    "electionDescription": "Description of the election",
+    "isOpen": false,
+    "startTime": 1640995200000,
+    "endTime": 1641081600000,
+    "electionLayout": {
+      "pollType": "radio",
+      "electionCardId": "1"
+    },
+    "options": [
+      {
+        "optionName": "Option 1",
+        "optionId": "uuid-here"
+      },
+      {
+        "optionName": "Option 2",
+        "optionId": "uuid-here"
+      }
+    ],
+    "voters": [
+      {
+        "voterEmail": "voter1@example.com"
+      },
+      {
+        "voterEmail": "voter2@example.com"
+      }
+    ]
+  }
+}
+```
+
+**404 NOT FOUND - Election not found:**
+```json
+{
+  "success": false,
+  "message": "Election not found in database"
+}
+```
+
+**401 UNAUTHORIZED - User is not a valid voter:**
+```json
+{
+  "success": false,
+  "message": "This user cannot access this election"
+}
+```
+
+**412 PRECONDITION FAILED - Election ID empty:**
+```json
+{
+  "success": false,
+  "message": "Election id is empty"
+}
+```
+
+**500 INTERNAL SERVER ERROR - Unexpected error:**
+```json
+{
+  "success": false,
+  "message": "An error occurred while fetching election details."
+}
+```
+
+### Find Open Election
+**Endpoint:**
+`GET /api/v1/election/find/open?electionId=`
+
+**Request Body:**
+
+**Flow:**
+Public endpoint to fetch election details for open elections.
+
+**Response JSON Structures:**
+
+**200 OK - Open election found:**
+```json
+{
+  "success": true,
+  "message": "Election found",
+  "electionInfo": {
+    "electionId": "uuid-here",
+    "electionName": "My Election",
+    "electionDescription": "Description of the election",
+    "isOpen": true,
+    "startTime": 1640995200000,
+    "endTime": 1641081600000,
+    "electionLayout": {
+      "pollType": "radio",
+      "electionCardId": "1"
+    },
+    "openElectionLink": "https://example.com/vote/uuid-here",
+    "options": [
+      {
+        "optionName": "Option 1",
+        "optionId": "uuid-here"
+      },
+      {
+        "optionName": "Option 2",
+        "optionId": "uuid-here"
+      }
+    ]
+  }
+}
+```
+
+**404 NOT FOUND - Election not found:**
+```json
+{
+  "success": false,
+  "message": "Election not found in database"
+}
+```
+
+**412 PRECONDITION FAILED - Election is not public:**
+```json
+{
+  "success": false,
+  "message": "This election is not public"
+}
+```
+
+**412 PRECONDITION FAILED - Election ID empty:**
+```json
+{
+  "success": false,
+  "message": "Election id is empty"
+}
+```
+
+**500 INTERNAL SERVER ERROR - Unexpected error:**
+```json
+{
+  "success": false,
+  "message": "An error occurred while fetching election details."
+}
+```
+
 ### Find All Elections
 **Endpoint:**
 `GET /api/v1/user/election/find-all`
@@ -1066,6 +1219,7 @@ User fetches all their elections.
       "electionId": "uuid-here",
       "electionName": "My Election 1",
       "electionDescription": "Description of the election",
+      "isOpen": false,
       "startTime": 1640995200000,
       "endTime": 1641081600000,
       "electionLayout": {
@@ -1088,6 +1242,7 @@ User fetches all their elections.
       "electionId": "uuid-here-2",
       "electionName": "My Election 2",
       "electionDescription": "Description of the second election",
+      "isOpen": true,
       "startTime": 1640995200000,
       "endTime": 1641081600000,
       "electionLayout": {
@@ -1126,385 +1281,92 @@ User fetches all their elections.
 }
 ```
 
-### Update Election Name
+
+### Update Election (Complete)
 **Endpoint:**
-`PATCH /api/v1/user/election/update/name`
+`PATCH /api/v1/user/election/update`
 
 **Request Body:**
 ```json
 {
   "electionId": "uuid-here",
-  "newElectionName": "Updated Election Name"
-}
-```
-
-**Response JSON Structures:**
-
-**200 OK - Name updated successfully:**
-```json
-{
-  "success": true,
-  "message": "Election name updated successfully"
-}
-```
-
-**401 UNAUTHORIZED - User does not own election:**
-```json
-{
-  "success": false,
-  "message": "This user does not own this election"
-}
-```
-
-**412 PRECONDITION FAILED - Empty fields:**
-```json
-{
-  "success": false,
-  "message": "Election id or election name or both is empty"
-}
-```
-
-**500 INTERNAL SERVER ERROR - Unexpected error:**
-```json
-{
-  "success": false,
-  "message": "An error occurred while changing the election name"
-}
-```
-
-### Update Election Description
-**Endpoint:**
-`PATCH /api/v1/user/election/update/description`
-
-**Request Body:**
-```json
-{
-  "electionId": "uuid-here",
-  "newElectionDescription": "Updated description"
-}
-```
-
-**Response JSON Structures:**
-
-**200 OK - Description updated successfully:**
-```json
-{
-  "success": true,
-  "message": "Election description updated successfully"
-}
-```
-
-**401 UNAUTHORIZED - User does not own election:**
-```json
-{
-  "success": false,
-  "message": "This user does not own this election"
-}
-```
-
-**412 PRECONDITION FAILED - Empty fields:**
-```json
-{
-  "success": false,
-  "message": "Election id or election description or both is empty"
-}
-```
-
-**500 INTERNAL SERVER ERROR - Unexpected error:**
-```json
-{
-  "success": false,
-  "message": "An error occurred while changing the election description"
-}
-```
-
-### Update Election Poll Type
-**Endpoint:**
-`PATCH /api/v1/user/election/update/poll-type`
-
-**Request Body:**
-```json
-{
-  "electionId": "uuid-here",
-  "newPollType": "radio"
-}
-```
-
-**Response JSON Structures:**
-
-**200 OK - Poll type updated successfully:**
-```json
-{
-  "success": true,
-  "message": "Election poll type updated successfully"
-}
-```
-
-**401 UNAUTHORIZED - User does not own election:**
-```json
-{
-  "success": false,
-  "message": "This user does not own this election"
-}
-```
-
-**412 PRECONDITION FAILED - Empty fields:**
-```json
-{
-  "success": false,
-  "message": "Election id or poll type or both is empty"
-}
-```
-
-**412 PRECONDITION FAILED - Invalid poll type:**
-```json
-{
-  "success": false,
-  "message": "Poll type is invalid"
-}
-```
-
-**500 INTERNAL SERVER ERROR - Unexpected error:**
-```json
-{
-  "success": false,
-  "message": "An error occurred while changing the election poll type"
-}
-```
-
-### Update Election Card ID
-**Endpoint:**
-`PATCH /api/v1/user/election/update/card-id`
-
-**Request Body:**
-```json
-{
-  "electionId": "uuid-here",
-  "newElectionCardId": "2"
-}
-```
-
-**Response JSON Structures:**
-
-**200 OK - Card ID updated successfully:**
-```json
-{
-  "success": true,
-  "message": "Election card id updated successfully"
-}
-```
-
-**401 UNAUTHORIZED - User does not own election:**
-```json
-{
-  "success": false,
-  "message": "This user does not own this election"
-}
-```
-
-**412 PRECONDITION FAILED - Empty fields:**
-```json
-{
-  "success": false,
-  "message": "Election id or election card id or both is empty"
-}
-```
-
-**412 PRECONDITION FAILED - Invalid card ID:**
-```json
-{
-  "success": false,
-  "message": "Election card id is invalid"
-}
-```
-
-**500 INTERNAL SERVER ERROR - Unexpected error:**
-```json
-{
-  "success": false,
-  "message": "An error occurred while changing the election card id"
-}
-```
-
-### Update Election Start Time
-**Endpoint:**
-`PATCH /api/v1/user/election/update/start-time`
-
-**Request Body:**
-```json
-{
-  "electionId": "uuid-here",
-  "newStartTime": 1640995200000
-}
-```
-
-**Response JSON Structures:**
-
-**200 OK - Start time updated successfully:**
-```json
-{
-  "success": true,
-  "message": "Election start time updated successfully"
-}
-```
-
-**401 UNAUTHORIZED - User does not own election:**
-```json
-{
-  "success": false,
-  "message": "This user does not own this election"
-}
-```
-
-**412 PRECONDITION FAILED - Empty election ID:**
-```json
-{
-  "success": false,
-  "message": "Election id is empty"
-}
-```
-
-**500 INTERNAL SERVER ERROR - Unexpected error:**
-```json
-{
-  "success": false,
-  "message": "An error occurred while updating election start time"
-}
-```
-
-### Update Election End Time
-**Endpoint:**
-`PATCH /api/v1/user/election/update/end-time`
-
-**Request Body:**
-```json
-{
-  "electionId": "uuid-here",
-  "newEndTime": 1641081600000
-}
-```
-
-**Response JSON Structures:**
-
-**200 OK - End time updated successfully:**
-```json
-{
-  "success": true,
-  "message": "Election end time updated successfully"
-}
-```
-
-**401 UNAUTHORIZED - User does not own election:**
-```json
-{
-  "success": false,
-  "message": "This user does not own this election"
-}
-```
-
-**412 PRECONDITION FAILED - Empty election ID:**
-```json
-{
-  "success": false,
-  "message": "Election id is empty"
-}
-```
-
-**500 INTERNAL SERVER ERROR - Unexpected error:**
-```json
-{
-  "success": false,
-  "message": "An error occurred while updating voters"
-}
-```
-
-### Update Election Voters
-**Endpoint:**
-`PATCH /api/v1/user/election/update/voters`
-
-**Request Body:**
-```json
-{
-  "electionId": "uuid-here",
-  "newVoters": [
+  "electionName": "Updated Election Name",
+  "electionDescription": "Updated description",
+  "isOpen": true,
+  "startTime": 1640995200000,
+  "endTime": 1641081600000,
+  "electionLayout": {
+    "pollType": "checkbox",
+    "electionCardId": "2"
+  },
+  "options": [
     {
-      "voterEmail": "voter1@example.com"
+      "optionName": "New Option 1"
     },
     {
-      "voterEmail": "voter2@example.com"
+      "optionName": "New Option 2"
+    }
+  ],
+  "voters": [
+    {
+      "voterEmail": "newvoter1@example.com"
+    },
+    {
+      "voterEmail": "newvoter2@example.com"
     }
   ]
 }
 ```
 
+**Flow:**
+User updates complete election information including all fields.
+
 **Response JSON Structures:**
 
-**200 OK - Voters updated successfully:**
+**200 OK - Election updated successfully:**
 ```json
 {
   "success": true,
-  "message": "Election voters updated successfully"
-}
-```
-
-**401 UNAUTHORIZED - User does not own election:**
-```json
-{
-  "success": false,
-  "message": "This user does not own this election"
-}
-```
-
-**403 FORBIDDEN - Too close to start time:**
-```json
-{
-  "success": false,
-  "message": "Changes to the election aren't allowed once it is 20 minutes away from starting"
-}
-```
-
-**412 PRECONDITION FAILED - Empty election ID:**
-```json
-{
-  "success": false,
-  "message": "Election id is empty"
-}
-```
-
-**500 INTERNAL SERVER ERROR - Unexpected error:**
-```json
-{
-  "success": false,
-  "message": "An error occurred while updating voters"
-}
-```
-
-### Update Election Options
-**Endpoint:**
-`PATCH /api/v1/user/election/update/options`
-
-**Request Body:**
-```json
-{
-  "electionId": "uuid-here",
-  "newOptions": [
-    {
-      "optionName": "Option 1"
+  "message": "Election is created successfully",
+  "electionInfo": {
+    "electionId": "uuid-here",
+    "electionName": "Updated Election Name",
+    "electionDescription": "Updated description",
+    "isOpen": true,
+    "startTime": 1640995200000,
+    "endTime": 1641081600000,
+    "electionLayout": {
+      "pollType": "checkbox",
+      "electionCardId": "2"
     },
-    {
-      "optionName": "Option 2"
-    }
-  ]
+    "openElectionLink": "https://example.com/vote/uuid-here",
+    "options": [
+      {
+        "optionName": "New Option 1",
+        "optionId": "uuid-here"
+      },
+      {
+        "optionName": "New Option 2",
+        "optionId": "uuid-here"
+      }
+    ],
+    "voters": [
+      {
+        "voterEmail": "newvoter1@example.com"
+      },
+      {
+        "voterEmail": "newvoter2@example.com"
+      }
+    ]
+  }
 }
 ```
 
-**Response JSON Structures:**
-
-**200 OK - Options updated successfully:**
+**404 NOT FOUND - Election not found:**
 ```json
 {
-  "success": true,
-  "message": "Election options updated successfully"
+  "success": false,
+  "message": "No election with this id exists"
 }
 ```
 
@@ -1512,15 +1374,39 @@ User fetches all their elections.
 ```json
 {
   "success": false,
-  "message": "This user does not own this election"
+  "message": "This user does not own this newElection"
 }
 ```
 
-**403 FORBIDDEN - Too close to start time:**
+**406 NOT ACCEPTABLE - Election name empty:**
 ```json
 {
   "success": false,
-  "message": "Changes to the election aren't allowed once it is 20 minutes away from starting"
+  "message": "Election name cannot be empty"
+}
+```
+
+**406 NOT ACCEPTABLE - Election name too long:**
+```json
+{
+  "success": false,
+  "message": "Max newElection name length is 30"
+}
+```
+
+**406 NOT ACCEPTABLE - Card ID empty:**
+```json
+{
+  "success": false,
+  "message": "Election card id cannot be empty"
+}
+```
+
+**406 NOT ACCEPTABLE - Poll type invalid:**
+```json
+{
+  "success": false,
+  "message": "Election poll type is invalid"
 }
 ```
 
@@ -1536,15 +1422,23 @@ User fetches all their elections.
 ```json
 {
   "success": false,
-  "message": "Option name cannot more than 30 characters"
+  "message": "Option name cannot be more than 30 characters"
 }
 ```
 
-**412 PRECONDITION FAILED - Empty election ID:**
+**406 NOT ACCEPTABLE - Voter email empty:**
 ```json
 {
   "success": false,
-  "message": "Election id is empty"
+  "message": "Voter email cannot be empty"
+}
+```
+
+**406 NOT ACCEPTABLE - Invalid voter email:**
+```json
+{
+  "success": false,
+  "message": "One or all of the voter's email is invalid"
 }
 ```
 
@@ -1552,7 +1446,7 @@ User fetches all their elections.
 ```json
 {
   "success": false,
-  "message": "An error occurred while updating voters"
+  "message": "An error occurred while changing the newElection name"
 }
 ```
 
@@ -1639,6 +1533,74 @@ User fetches election results after the election has ended.
 }
 ```
 
+### Get Open Election Results (Public)
+**Endpoint:**
+`GET /api/v1/election/open/result?electionId={electionId}`
+
+**Flow:**
+Public endpoint to get election results for open elections. No authentication required.
+
+**Response JSON Structures:**
+
+**200 OK - Election result retrieved successfully:**
+```json
+{
+  "success": true,
+  "message": "Election result is generated",
+  "electionResult": {
+    "electionName": "My Election",
+    "electionId": "uuid-here",
+    "electionDescription": "Description of the election",
+    "totalVotes": 15,
+    "totalVoters": 20,
+    "options": [
+      {
+        "optionName": "Option 1",
+        "optionId": "uuid-here",
+        "votes": 8
+      },
+      {
+        "optionName": "Option 2",
+        "optionId": "uuid-here",
+        "votes": 7
+      }
+    ],
+    "voters": [
+      {
+        "voterEmail": "voter1@example.com"
+      },
+      {
+        "voterEmail": "voter2@example.com"
+      }
+    ]
+  }
+}
+```
+
+**403 FORBIDDEN - Election not ended yet:**
+```json
+{
+  "success": false,
+  "message": "Election result can only be obtained after the election has ended"
+}
+```
+
+**404 NOT FOUND - Election not found:**
+```json
+{
+  "success": false,
+  "message": "Election not found in database"
+}
+```
+
+**412 PRECONDITION FAILED - Election ID empty:**
+```json
+{
+  "success": false,
+  "message": "Election id is empty"
+}
+```
+
 ---
 
 ## Voting Endpoints
@@ -1718,6 +1680,328 @@ User casts a vote using a unique link.
 
 ---
 
+### Cast Multi Vote
+**Endpoint:**
+`PUT /api/v1/public/vote/cast/multi`
+
+**Request Body:**
+```json
+{
+  "electionId": "uuid-here",
+  "voterId": "voter-uuid-here",
+  "optionIds": "[\"option-uuid-1\", \"option-uuid-2\", \"option-uuid-3\"]"
+}
+```
+
+**Flow:**
+User casts multiple votes for different options using their voter ID. The `optionIds` field should be a JSON string array containing the option IDs to vote for.
+
+**Response JSON Structures:**
+
+**200 OK - Multi vote cast successfully:**
+```json
+{
+  "success": true,
+  "message": "Successfully casted vote"
+}
+```
+
+**401 UNAUTHORIZED - Voter not valid:**
+```json
+{
+  "success": false,
+  "message": "This voter is not valid in this election"
+}
+```
+
+**403 FORBIDDEN - Election not started:**
+```json
+{
+  "success": false,
+  "message": "Election has not started yet. You can vote after the election starts."
+}
+```
+
+**403 FORBIDDEN - Election already ended:**
+```json
+{
+  "success": false,
+  "message": "Election has already ended."
+}
+```
+
+**404 NOT FOUND - Election not found:**
+```json
+{
+  "success": false,
+  "message": "Election not found in database"
+}
+```
+
+**412 PRECONDITION FAILED - Voter ID empty:**
+```json
+{
+  "success": false,
+  "message": "Voter Id is empty"
+}
+```
+
+**412 PRECONDITION FAILED - Election ID empty:**
+```json
+{
+  "success": false,
+  "message": "Election Id is empty"
+}
+```
+
+**412 PRECONDITION FAILED - Option IDs empty:**
+```json
+{
+  "success": false,
+  "message": "Option Ids is empty"
+}
+```
+
+**500 INTERNAL SERVER ERROR - Unexpected error:**
+```json
+{
+  "success": false,
+  "message": "An error occurred while casting vote. This user can try again."
+}
+```
+
+### Cast Open Vote
+**Endpoint:**
+`PUT /api/v1/public/vote/open/cast`
+
+**Request Body:**
+```json
+{
+  "electionId": "uuid-here",
+  "optionId": "uuid-here"
+}
+```
+
+**Flow:**
+User casts a vote for an open election without requiring voter authentication.
+
+**Response JSON Structures:**
+
+**200 OK - Vote cast successfully:**
+```json
+{
+  "success": true,
+  "message": "Vote cast successfully"
+}
+```
+
+**403 FORBIDDEN - Election not started or ended:**
+```json
+{
+  "success": false,
+  "message": "Election not started or ended"
+}
+```
+
+**404 NOT FOUND - Election not found:**
+```json
+{
+  "success": false,
+  "message": "Election not found in database"
+}
+```
+
+**412 PRECONDITION FAILED - Election ID empty:**
+```json
+{
+  "success": false,
+  "message": "Election Id is empty"
+}
+```
+
+**412 PRECONDITION FAILED - Option ID empty:**
+```json
+{
+  "success": false,
+  "message": "Option Id is empty"
+}
+```
+
+**500 INTERNAL SERVER ERROR - Unexpected error:**
+```json
+{
+  "success": false,
+  "message": "An error occurred while casting vote. This user can try again."
+}
+```
+
+### Cast Open Multi Vote
+**Endpoint:**
+`PUT /api/v1/public/vote/open/cast/multi`
+
+**Request Body:**
+```json
+{
+  "electionId": "uuid-here",
+  "optionIds": "[\"option-uuid-1\", \"option-uuid-2\", \"option-uuid-3\"]"
+}
+```
+
+**Flow:**
+User casts multiple votes for different options in an open election. The `optionIds` field should be a JSON string array containing the option IDs to vote for.
+
+**Response JSON Structures:**
+
+**200 OK - Multi vote cast successfully:**
+```json
+{
+  "success": true,
+  "message": "Successfully casted vote"
+}
+```
+
+**403 FORBIDDEN - Election not started:**
+```json
+{
+  "success": false,
+  "message": "Election has not started yet. You can vote after the election starts."
+}
+```
+
+**403 FORBIDDEN - Election already ended:**
+```json
+{
+  "success": false,
+  "message": "Election has already ended."
+}
+```
+
+**404 NOT FOUND - Election not found:**
+```json
+{
+  "success": false,
+  "message": "Election not found in database"
+}
+```
+
+**412 PRECONDITION FAILED - Election ID empty:**
+```json
+{
+  "success": false,
+  "message": "Election Id is empty"
+}
+```
+
+**412 PRECONDITION FAILED - Option IDs empty:**
+```json
+{
+  "success": false,
+  "message": "Option Ids is empty"
+}
+```
+
+**500 INTERNAL SERVER ERROR - Unexpected error:**
+```json
+{
+  "success": false,
+  "message": "An error occurred while casting vote. This user can try again."
+}
+```
+
+---
+
+## User Settings Endpoints
+
+### Get User Settings
+**Endpoint:**
+`GET /api/v1/user/settings`
+
+**Response JSON Structures:**
+
+**200 OK - Settings retrieved successfully:**
+```json
+{
+  "success": true,
+  "message": "User settings found",
+  "userSettings": {
+    "id": "uuid-here",
+    "userEmail": "user@example.com",
+    "preferredLanguage": "English",
+    "preferredTheme": "Light",
+    "pushNotificationsEnabled": true,
+    "emailNotificationsEnabled": true
+  }
+}
+```
+
+**400 BAD REQUEST - Invalid user settings ID:**
+```json
+{
+  "success": false,
+  "message": "Bad Request"
+}
+```
+
+**500 INTERNAL SERVER ERROR - Unexpected error:**
+```json
+{
+  "success": false,
+  "message": "An error occurred while fetching user settings"
+}
+```
+
+### Update User Settings
+**Endpoint:**
+`PUT /api/v1/user/settings`
+
+**Request Body:**
+```json
+{
+  "id": "uuid-here",
+  "userEmail": "user@example.com",
+  "preferredLanguage": "English",
+  "preferredTheme": "Light",
+  "pushNotificationsEnabled": true,
+  "emailNotificationsEnabled": true
+}
+```
+
+**Response JSON Structures:**
+
+**200 OK - Settings updated successfully:**
+```json
+{
+  "success": true,
+  "message": "User settings updated successfully",
+  "userSettings": {
+    "id": "uuid-here",
+    "userEmail": "user@example.com",
+    "preferredLanguage": "English",
+    "preferredTheme": "Light",
+    "pushNotificationsEnabled": true,
+    "emailNotificationsEnabled": true
+  }
+}
+```
+
+**400 BAD REQUEST - Invalid user settings ID or entity:**
+```json
+{
+  "success": false,
+  "message": "Bad Request"
+}
+```
+
+**500 INTERNAL SERVER ERROR - Unexpected error:**
+```json
+{
+  "success": false,
+  "message": "An error occurred while updating user settings"
+}
+```
+
+---
+
 ## Utilities
 
 - **JWT Utility**: Token generation, validation, extraction, error handling for invalid/expired tokens.
@@ -1730,9 +2014,9 @@ User casts a vote using a unique link.
 
 ## Complete Endpoint Summary
 
-This documentation covers **all 26 endpoints** found in the codebase:
+This documentation covers **all 27 endpoints** found in the codebase:
 
-### Authentication & User Endpoints (8 endpoints)
+### Authentication & User Endpoints (9 endpoints)
 1. `POST /api/v1/auth/signup` - User registration
 2. `POST /api/v1/auth/login` - User login
 3. `POST /api/v1/auth/email-verification/code` - Send email verification code
@@ -1750,23 +2034,26 @@ This documentation covers **all 26 endpoints** found in the codebase:
 ### Health Check (1 endpoint)
 12. `GET /api/v1/public/health-check` - API health check
 
-### Election Endpoints (12 endpoints)
-13. `POST /api/v1/user/election/create` - Create election
-14. `DELETE /api/v1/user/election/delete` - Delete election
-15. `GET /api/v1/user/election/find` - Find specific election
-16. `GET /api/v1/user/election/find-all` - Find all user elections
-17. `GET /api/v1/user/election/result` - Get election results
-18. `PATCH /api/v1/user/election/update/name` - Update election name
-19. `PATCH /api/v1/user/election/update/description` - Update election description
-20. `PATCH /api/v1/user/election/update/poll-type` - Update poll type
-21. `PATCH /api/v1/user/election/update/card-id` - Update card ID
-22. `PATCH /api/v1/user/election/update/start-time` - Update start time
-23. `PATCH /api/v1/user/election/update/end-time` - Update end time
-24. `PATCH /api/v1/user/election/update/voters` - Update voters list
-25. `PATCH /api/v1/user/election/update/options` - Update options list
+### User Settings Endpoints (2 endpoints)
+13. `GET /api/v1/user/settings` - Get user settings
+14. `PUT /api/v1/user/settings` - Update user settings
 
-### Voting Endpoints (1 endpoint)
-26. `PUT /api/v1/public/vote/cast` - Cast vote
+### Election Endpoints (9 endpoints)
+15. `POST /api/v1/user/election/create` - Create election
+16. `DELETE /api/v1/user/election/delete` - Delete election
+17. `GET /api/v1/user/election/find` - Find election (owner)
+18. `GET /api/v1/election/find/open` - Find open election (public)
+19. `GET /api/v1/election/find/voter` - Find election for voter
+20. `GET /api/v1/user/election/find-all` - Find all user elections
+21. `GET /api/v1/user/election/result` - Get election results
+22. `GET /api/v1/election/open/result` - Get open election results (public)
+23. `PATCH /api/v1/user/election/update` - Update complete election
+
+### Voting Endpoints (4 endpoints)
+24. `PUT /api/v1/public/vote/cast` - Cast vote
+25. `PUT /api/v1/public/vote/cast/multi` - Cast multi vote
+26. `PUT /api/v1/public/vote/open/cast` - Cast open vote
+27. `PUT /api/v1/public/vote/open/cast/multi` - Cast open multi vote
 
 ---
 

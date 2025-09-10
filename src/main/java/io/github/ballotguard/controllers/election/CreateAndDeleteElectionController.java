@@ -73,12 +73,12 @@ public class CreateAndDeleteElectionController {
 
             Optional<ElectionEntity> election = electionRepository.findByElectionId(electionId);
 
-            if (!election.isPresent()) {
+            if (election.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(createResponseUtil.createResponseBody(false, "Election not found in database"));
             }
 
-            if(!authenticatedUser.getUserElectionsId().contains(electionId) || !election.get().getCreatorId().equals(authenticatedUser.getUserElectionsId())){
+            if(!authenticatedUser.getUserElectionsId().contains(electionId) || !election.get().getCreatorId().equals(authenticatedUser.getUserId())){
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(createResponseUtil.createResponseBody(false, "This user does not own this election"));
             }

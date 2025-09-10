@@ -97,24 +97,28 @@ public class CreateAndDeleteElectionService {
                 election.getVoteCount().put(option.getOptionId(), (long)0);
             }
 
-            for (Voter voter : election.getVoters()) {
+            if(election.getIsOpen()){
+                election.setVoters(null);
+            }else{
+                for (Voter voter : election.getVoters()) {
 
-                if (voter.getVoterEmail() == null || voter.getVoterEmail().isEmpty()) {
-                    return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
-                            .body(createResponseUtil.createResponseBody(false, "Voter email cannot be empty"));
-                } else if (!matchTextPatternUtil.isValidEmail(voter.getVoterEmail())) {
-                    return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
-                            .body(createResponseUtil.createResponseBody(false, "One or all of the voter's email is invalid"));
+                    if (voter.getVoterEmail() == null || voter.getVoterEmail().isEmpty()) {
+                        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                                .body(createResponseUtil.createResponseBody(false, "Voter email cannot be empty"));
+                    } else if (!matchTextPatternUtil.isValidEmail(voter.getVoterEmail())) {
+                        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                                .body(createResponseUtil.createResponseBody(false, "One or all of the voter's email is invalid"));
+                    }
+
+                    voter.setHasVoted(false);
+                    voter.setVoterId(GenerateAndValidateStringUtil.generateUniqueString());
                 }
-
-                voter.setHasVoted(false);
-                voter.setVoterId(GenerateAndValidateStringUtil.generateUniqueString());
             }
 
             election.setElectionId(GenerateAndValidateStringUtil.generateUniqueString());
             election.setCreatorId(getAuthenticatedUserUtil.getAuthenticatedUser().getUserId());
             election.setElectionCreationTime(Instant.now().toEpochMilli());
-            election.setUniqueString(GenerateAndValidateStringUtil.generateUniqueString());
+            election.setOpenVoteString(GenerateAndValidateStringUtil.generateUniqueString());
             election.setTotalVotes(0L);
 
 
@@ -128,24 +132,26 @@ public class CreateAndDeleteElectionService {
                 user.setUserElectionsId(userElectionIds);
                 userRepository.save(user);
 
-                taskSchedulerService.scheduleElectionTask(
-                        savedElection.getElectionId(),
-                        savedElection.getStartTime(),
-                        true,
-                        () -> {
-                            try {
-                                sendVotingLinkEmailService.sendVotingLinkToAllVoters(
-                                        savedElection.getVoters(),
-                                        savedElection.getStartTime(),
-                                        savedElection.getEndTime(),
-                                        election.getElectionName(),
-                                        election.getElectionDescription(),
-                                        election.getElectionId()
-                                );
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
+                if(!savedElection.getIsOpen()){
+                    taskSchedulerService.scheduleElectionTask(
+                            savedElection.getElectionId(),
+                            savedElection.getStartTime(),
+                            true,
+                            () -> {
+                                try {
+                                    sendVotingLinkEmailService.sendVotingLinkToAllVoters(
+                                            savedElection.getVoters(),
+                                            savedElection.getStartTime(),
+                                            savedElection.getEndTime(),
+                                            election.getElectionName(),
+                                            election.getElectionDescription(),
+                                            election.getElectionId()
+                                    );
+                                } catch (Exception e) {
+                                    throw new RuntimeException(e);
+                                }
+                            });
+                }
 
                 taskSchedulerService.scheduleElectionTask(
                         savedElection.getElectionId(),
@@ -172,7 +178,7 @@ public class CreateAndDeleteElectionService {
 
 
                 return ResponseEntity.status(HttpStatus.CREATED)
-                        .body(createResponseUtil.createResponseBody(true, "Election is created successfully", "electionInfo", createResponseUtil.createElectionInfoMap(savedElection)));
+                        .body(createResponseUtil.createResponseBody(true, "Election is created successfully", "electionInfo", createResponseUtil.createElectionInfoMap(savedElection, true)));
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(createResponseUtil.createResponseBody(false, "Election could not be created"));

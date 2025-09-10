@@ -83,34 +83,142 @@ public class SendResultEmailService {
         voterListHtml.append("</ul>");
 
         return String.format("""
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                </head>
-                <body style="font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 20px;">
-                    <div style="max-width: 600px; margin: auto; background: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0;">
-                        <h2 style="color: #2d3748;">Election Summary</h2>
-                        <p><strong>Name:</strong> %s</p>
-                        <p><strong>Description:</strong> %s</p>
-                        <p><strong>Total Voters:</strong> %d</p>
-                        <p><strong>Total Votes Cast:</strong> %d</p>
-                        %s
-                        <br/>
-                        %s
-                        <p style="font-size: 12px; color: #666; margin-top: 30px; text-align: center;">
-                            &copy; Ballotguard — <a href="https://github.com/ballotguard" style="color: #667eea;">GitHub</a>
-                        </p>
-                    </div>
-                </body>
-                </html>
-                """,
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+          <style>
+            body {
+              margin: 0;
+              padding: 20px;
+              background-color: #020617; /* site dark bg */
+              font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+              color: #e5e7eb; /* slate-200 */
+            }
+            .container {
+              max-width: 600px;
+              margin: 0 auto;
+              background-color: #0b1220; /* deep panel */
+              border-radius: 14px;
+              overflow: hidden;
+              box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+              border: 1px solid rgba(255,255,255,0.08);
+            }
+            .top-bar {
+              height: 8px;
+              background: linear-gradient(90deg, #93c5fd 0%%, #22d3ee 50%%, #10b981 100%%); /* sky -> cyan -> emerald */
+            }
+            .content {
+              padding: 32px 40px;
+              text-align: left;
+            }
+            h2 {
+              margin: 0 0 12px 0;
+              font-size: 24px;
+              color: #ffffff;
+              font-weight: 700;
+              letter-spacing: 0.2px;
+            }
+            p, li {
+              font-size: 15px;
+              color: #cbd5e1; /* slate-300 */
+              line-height: 1.7;
+              margin: 0 0 12px 0;
+            }
+            .meta-grid { margin: 16px 0 8px 0; }
+            .meta-row {
+              display: flex;
+              justify-content: space-between;
+              gap: 16px;
+              padding: 10px 12px;
+              border: 1px solid rgba(255,255,255,0.08);
+              border-radius: 10px;
+              background-color: rgba(255,255,255,0.03);
+              margin-bottom: 10px;
+            }
+            .meta-row strong { color: #e2e8f0; font-weight: 600; }
+            .stats { display: flex; gap: 12px; margin: 18px 0 10px 0; flex-wrap: wrap; }
+            .pill {
+              display: inline-flex; align-items: center; gap: 8px;
+              padding: 10px 12px; border-radius: 999px;
+              background-color: rgba(255,255,255,0.05);
+              border: 1px solid rgba(255,255,255,0.08);
+            }
+            .divider {
+              height: 1px; width: 100%%;
+              background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+              margin: 18px 0;
+            }
+            .section-title {
+              font-size: 16px; font-weight: 600; color: #e2e8f0;
+              margin: 14px 0 8px 0;
+            }
+            .content-box {
+              padding: 14px 16px;
+              border: 1px solid rgba(255,255,255,0.08);
+              border-radius: 10px;
+              background-color: rgba(255,255,255,0.02);
+            }
+            .footer {
+              font-size: 12px; color: #94a3b8; text-align: center;
+              padding: 18px 16px 22px 16px;
+              border-top: 1px solid rgba(255,255,255,0.08);
+              background-color: rgba(255,255,255,0.02);
+            }
+            .footer a { color: #cbd5e1; text-decoration: none; }
+            @media (max-width: 640px) {
+              .content { padding: 24px 20px; }
+              h2 { font-size: 22px; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="top-bar"></div>
+            <div class="content">
+              <h2>Election Summary</h2>
+
+              <div class="meta-grid">
+                <div class="meta-row"><strong>Name</strong><span>%s</span></div>
+                <div class="meta-row"><strong>Description</strong><span>%s</span></div>
+              </div>
+
+              <div class="stats">
+                <div class="pill"><strong>Total Voters</strong><span>%d</span></div>
+                <div class="pill"><strong>Total Votes</strong><span>%d</span></div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="section">
+                <div class="section-title">Results</div>
+                <div class="content-box">
+                  %s
+                </div>
+              </div>
+
+              <div class="section">
+                <div class="section-title">Participants</div>
+                <div class="content-box">
+                  %s
+                </div>
+              </div>
+            </div>
+
+            <div class="footer">
+              &copy; Ballotguard &nbsp;|&nbsp; <a href="https://github.com/ballotguard">github.com/ballotguard</a>
+            </div>
+          </div>
+        </body>
+        </html>
+        """,
                 electionName,
                 electionDescription,
                 totalVoters,
                 totalVotes,
                 optionsHtml,
-                voterListHtml
-        );
+                voterListHtml);
     }
 }

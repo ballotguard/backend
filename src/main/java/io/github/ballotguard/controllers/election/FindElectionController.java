@@ -12,11 +12,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1/user/election")
+@RequestMapping("/api/v1/")
 @Slf4j
 public class FindElectionController {
 
@@ -31,8 +32,8 @@ public class FindElectionController {
     @Autowired
     private ElectionRepository electionRepository;
 
-    @GetMapping("find")
-    public ResponseEntity getElectionDetailsById(@RequestParam String electionId) {
+    @GetMapping("user/election/find")
+    public ResponseEntity getElectionDetailsByIdForElectionOwner(@RequestParam String electionId) {
         try{
             UserEntity authenticatedUser = getAuthenticatedUserUtil.getAuthenticatedUser();
 
@@ -63,7 +64,7 @@ public class FindElectionController {
                         .body(createResponseUtil.createResponseBody(false, "This election is not owned by current user"));
             }
 
-            return findElectionService.findElectionById(election.get());
+            return findElectionService.findElectionById(election.get(), true);
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -72,7 +73,90 @@ public class FindElectionController {
         }
     }
 
-    @GetMapping("find-all")
+    @GetMapping("election/find/open")
+    public ResponseEntity getElectionDetailsByIdForOpenElection(@RequestParam String electionId) {
+        try{
+
+            if(electionId == null || electionId.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
+                        .body(createResponseUtil.createResponseBody(false, "Election id is empty"));
+            }
+
+            Optional<ElectionEntity> election = electionRepository.findByElectionId(electionId);
+
+            if (election.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(createResponseUtil.createResponseBody(false, "Election not found in database"));
+            }
+
+            if(election.get().getIsOpen()){
+                return findElectionService.findElectionById(election.get(), false);
+
+            }else{
+                return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
+                        .body(createResponseUtil.createResponseBody(false, "This election is not public"));
+            }
+
+
+
+
+        }catch(Exception e){
+            log.error(e.getMessage());
+            return ResponseEntity.internalServerError()
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred while fetching election details."));
+        }
+    }
+
+
+    @GetMapping("election/find/voter")
+    public ResponseEntity getElectionDetailsByIdForVoter(@RequestParam String electionId, @RequestParam String voterId) {
+        try{
+
+            if(electionId == null || electionId.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
+                        .body(createResponseUtil.createResponseBody(false, "Election id is empty"));
+            }
+
+            Optional<ElectionEntity> election = electionRepository.findByElectionId(electionId);
+
+            if (!election.isPresent()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(createResponseUtil.createResponseBody(false, "Election not found in database"));
+            }
+
+            if(election.get().getVoters().stream().noneMatch(voter -> voter.getVoterId().equals(voterId))){
+                log.error("election id "+electionId + " | voter id "+voterId);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(createResponseUtil.createResponseBody(false, "This user cannot access this election"));
+            }
+
+            if(election.get().getVoters().stream().anyMatch(voter -> voter.getVoterId().equals(voterId) && voter.isHasVoted())){
+                log.error("election id "+electionId + " | voter id "+voterId);
+                return ResponseEntity.status(HttpStatus.LOCKED)
+                        .body(createResponseUtil.createResponseBody(false, "You have already submitted your vote."));
+            }
+
+            if(Instant.ofEpochMilli(election.get().getStartTime()).isAfter(Instant.now())){
+                return ResponseEntity.status(HttpStatus.LOCKED)
+                        .body(createResponseUtil.createResponseBody(false, "Election has not started yet"));
+            }
+
+            if(Instant.ofEpochMilli(election.get().getEndTime()).isBefore(Instant.now())){
+                return ResponseEntity.status(HttpStatus.LOCKED)
+                        .body(createResponseUtil.createResponseBody(false, "Election has already ended"));
+            }
+
+
+            return findElectionService.findElectionById(election.get(), false);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.internalServerError()
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred while fetching election details."));
+        }
+    }
+
+    @GetMapping("user/election/find-all")
     public ResponseEntity getAllElectionInfoByUser() {
         try{
 
