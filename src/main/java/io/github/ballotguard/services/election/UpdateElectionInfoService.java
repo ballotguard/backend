@@ -48,7 +48,7 @@ public class UpdateElectionInfoService {
 
             } else if (newElection.getElectionName().length() > 30) {
                 return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
-                        .body(createResponseUtil.createResponseBody(false, "Max newElection name length is 30"));
+                        .body(createResponseUtil.createResponseBody(false, "Max election name length is 30"));
 
             }
 //            else if (!Instant.ofEpochMilli(newElection.getStartTime()).isAfter(Instant.now().plus(Duration.ofMinutes(20)))) {
@@ -130,7 +130,7 @@ public class UpdateElectionInfoService {
 
 
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(createResponseUtil.createResponseBody(true, "Election is created successfully", "electionInfo", createResponseUtil.createElectionInfoMap(savedElection, true)));
+                    .body(createResponseUtil.createResponseBody(true, "Election is updated successfully", "electionInfo", createResponseUtil.createElectionInfoMap(savedElection, true)));
 
         } catch (Exception e) {
             log.error(e.getMessage());

@@ -50,7 +50,7 @@ public class UpdateElectionInfoController {
 
             if(!authenticatedUser.getUserElectionsId().contains(newElection.getElectionId()) || !oldElection.get().getCreatorId().equals(authenticatedUser.getUserId())) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(createResponseUtil.createResponseBody(false, "This user does not own this newElection"));
+                        .body(createResponseUtil.createResponseBody(false, "This user does not own this election"));
             }
 
 
@@ -60,7 +60,7 @@ public class UpdateElectionInfoController {
         }catch (Exception e) {
             log.error(e.getMessage());
             return ResponseEntity.internalServerError()
-                    .body(createResponseUtil.createResponseBody(false, "An error occurred while changing the newElection name"));
+                    .body(createResponseUtil.createResponseBody(false, "An error occurred while updating election"));
         }
 
     }
