@@ -78,7 +78,7 @@ public class SpringSecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.setAllowedOrigins(List.of(corsAllowedOrigin));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         source.registerCorsConfiguration("/**", config);
         return source;
