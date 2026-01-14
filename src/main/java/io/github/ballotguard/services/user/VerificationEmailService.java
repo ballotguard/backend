@@ -49,7 +49,7 @@ public class VerificationEmailService {
                             /* Accent bar (no purple) */
                             .top-bar {
                               height: 8px;
-                              background: linear-gradient(90deg, #93c5fd 0%%, #22d3ee 50%%, #10b981 100%%); /* sky -> cyan -> emerald */
+                              background: #00000000; /* sky -> cyan -> emerald */
                             }
                             /* Content */
                             .content {

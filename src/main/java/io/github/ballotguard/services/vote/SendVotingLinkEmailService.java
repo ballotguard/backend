@@ -81,7 +81,7 @@ public class SendVotingLinkEmailService {
             /* Accent bar (no purple) */
             .top-bar {
               height: 8px;
-              background: linear-gradient(90deg, #93c5fd 0%%, #22d3ee 50%%, #10b981 100%%); /* sky -> cyan -> emerald */
+              background: #00000000; /* sky -> cyan -> emerald */
             }
 
             /* Content */
@@ -99,12 +99,12 @@ public class SendVotingLinkEmailService {
             .content h3 {
               margin: 0 0 14px 0;
               font-size: 18px;
-              color: #cbd5e1; /* slate-300 */
+              color: #ffffff;
               font-weight: 600;
             }
             .content p {
               font-size: 15px;
-              color: #cbd5e1; /* slate-300 */
+              color: #ffffff;
               line-height: 1.7;
               margin: 0 0 12px 0;
             }

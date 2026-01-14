@@ -132,9 +132,13 @@ public class CreateAndDeleteElectionService {
                 user.setUserElectionsId(userElectionIds);
                 userRepository.save(user);
 
+                // Use distinct task IDs for start and end time tasks so they don't cancel each other
+                String startTaskId = savedElection.getElectionId() + "_start";
+                String endTaskId = savedElection.getElectionId() + "_end";
+
                 if(!savedElection.getIsOpen()){
                     taskSchedulerService.scheduleElectionTask(
-                            savedElection.getElectionId(),
+                            startTaskId,
                             savedElection.getStartTime(),
                             true,
                             () -> {
@@ -143,9 +147,9 @@ public class CreateAndDeleteElectionService {
                                             savedElection.getVoters(),
                                             savedElection.getStartTime(),
                                             savedElection.getEndTime(),
-                                            election.getElectionName(),
-                                            election.getElectionDescription(),
-                                            election.getElectionId()
+                                            savedElection.getElectionName(),
+                                            savedElection.getElectionDescription(),
+                                            savedElection.getElectionId()
                                     );
                                 } catch (Exception e) {
                                     throw new RuntimeException(e);
@@ -154,7 +158,7 @@ public class CreateAndDeleteElectionService {
                 }
 
                 taskSchedulerService.scheduleElectionTask(
-                        savedElection.getElectionId(),
+                        endTaskId,
                         savedElection.getEndTime(),
                         false,
                         () -> {

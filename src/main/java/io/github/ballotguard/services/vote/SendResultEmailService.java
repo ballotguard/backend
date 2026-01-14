@@ -108,7 +108,7 @@ public class SendResultEmailService {
             }
             .top-bar {
               height: 8px;
-              background: linear-gradient(90deg, #93c5fd 0%%, #22d3ee 50%%, #10b981 100%%); /* sky -> cyan -> emerald */
+              background: #00000000; /* sky -> cyan -> emerald */
             }
             .content {
               padding: 32px 40px;
@@ -121,9 +121,15 @@ public class SendResultEmailService {
               font-weight: 700;
               letter-spacing: 0.2px;
             }
+            h3 {
+              margin: 10px 0 8px 0;
+              font-size: 16px;
+              color: #ffffff;
+              font-weight: 600;
+            }
             p, li {
               font-size: 15px;
-              color: #cbd5e1; /* slate-300 */
+              color: #ffffff;
               line-height: 1.7;
               margin: 0 0 12px 0;
             }
@@ -139,6 +145,7 @@ public class SendResultEmailService {
               margin-bottom: 10px;
             }
             .meta-row strong { color: #e2e8f0; font-weight: 600; }
+            .meta-row span { color: #ffffff; }
             .stats { display: flex; gap: 12px; margin: 18px 0 10px 0; flex-wrap: wrap; }
             .pill {
               display: inline-flex; align-items: center; gap: 8px;
@@ -146,6 +153,8 @@ public class SendResultEmailService {
               background-color: rgba(255,255,255,0.05);
               border: 1px solid rgba(255,255,255,0.08);
             }
+            .pill span { color: #ffffff !important; }
+            .pill strong { color: #ffffff !important; }
             .divider {
               height: 1px; width: 100%%;
               background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
@@ -181,13 +190,13 @@ public class SendResultEmailService {
               <h2>Election Summary</h2>
 
               <div class="meta-grid">
-                <div class="meta-row"><strong>Name</strong><span>%s</span></div>
-                <div class="meta-row"><strong>Description</strong><span>%s</span></div>
+                <div class="meta-row"><strong>Name&nbsp;</strong><span>%s</span></div>
+                <div class="meta-row"><strong>Description&nbsp;</strong><span>%s</span></div>
               </div>
 
               <div class="stats">
-                <div class="pill"><strong>Total Voters</strong><span>%d</span></div>
-                <div class="pill"><strong>Total Votes</strong><span>%d</span></div>
+                <div class="pill"><strong style="color:#ffffff;">Total Voters</strong><span style="color:#ffffff;">%d</span></div>
+                <div class="pill"><strong style="color:#ffffff;">Total Votes</strong><span style="color:#ffffff;">%d</span></div>
               </div>
 
               <div class="divider"></div>

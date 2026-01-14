@@ -39,9 +39,9 @@ public class UpdateElectionTimingService {
 
     public void updateVotingLinkDistributionTimer(ElectionEntity election) throws Exception {
         try{
+                String startTaskId = election.getElectionId() + "_start";
 
-
-                taskSchedulerService.scheduleElectionTask(election.getElectionId(), election.getStartTime(), true,() -> {
+                taskSchedulerService.scheduleElectionTask(startTaskId, election.getStartTime(), true,() -> {
                     try {
                         sendVotingLinkEmailService.sendVotingLinkToAllVoters(
                                 election.getVoters(),
@@ -68,9 +68,10 @@ public class UpdateElectionTimingService {
     public void updateElectionResultTimer(ElectionEntity election, String signedInUserEmail) throws Exception {
         try{
 
+                String endTaskId = election.getElectionId() + "_end";
 
-                    taskSchedulerService.scheduleElectionTask(
-                            election.getElectionId()+election.getElectionId(),
+                taskSchedulerService.scheduleElectionTask(
+                    endTaskId,
                             election.getEndTime(),
                             false,
                             () -> {
