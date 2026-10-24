@@ -4,11 +4,10 @@ server:
 spring:
   data:
     mongodb:
-#      uri: ${MONGODB_URI}
+      uri: ${MONGODB_URI}
       database: ${MONGODB_DATABASE_NAME}
       auto-index-creation: ${MONGODB_AUTO_INDEX_CREATION}
-      port: ${MONGODB_PORT}
-      host: ${MONGODB_HOST}
+
 
 
   mail:
