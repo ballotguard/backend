@@ -74,7 +74,11 @@ public class UserService {
             userEntity.setUserId(GenerateAndValidateStringUtil.generateUniqueString());
             userEntity.setVerified(isVerified);
             userEntity.setUserVerificationEntityId(userVerificationService.createUserVerificationEntity(userEntity.getUserId()).getId());
-            userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+            if (userEntity.getPassword() != null && !userEntity.getPassword().isEmpty()) {
+                userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+            } else {
+                userEntity.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+            }
             userEntity.setRoles(new ArrayList<>(Arrays.asList("USER")));
             userEntity.setUserCreationTime(Instant.now().getEpochSecond());
             userEntity.setUserElectionsId(new ArrayList<>());
