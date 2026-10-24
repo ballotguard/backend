@@ -7,8 +7,7 @@ spring:
       uri: ${MONGODB_URI}
       database: ${MONGODB_DATABASE_NAME}
       auto-index-creation: ${MONGODB_AUTO_INDEX_CREATION}
-      port: ${MONGODB_PORT}
-      host: ${MONGODB_HOST}
+
 
   mail:
     host: ${MAIL_HOST}
